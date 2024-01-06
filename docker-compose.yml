@@ -1,0 +1,66 @@
+version: "3"
+services:
+  mysql:
+    container_name: mysql
+    build:
+      context: ./mysql
+      dockerfile: Dockerfile
+    volumes:
+      - "./mysql/db:/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      TZ: "Asia/Tokyo"
+    ports:
+      - "3306:3306"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    networks:
+      app_net:
+  phpmyadmin:
+    container_name: phpmyadmin
+    build:
+      context: ./phpmyadmin
+      dockerfile: Dockerfile
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=mysql
+      - PMA_USER=root
+      - PMA_PASSWORD=password
+    links:
+      - mysql
+    ports:
+      - "8080:80"
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    networks:
+      app_net:
+  nodejs:
+    container_name: nodejs
+    build:
+      context: ./nodejs
+      dockerfile: Dockerfile
+      args:
+        - USER_ID=502 # ホスト側のユーザーIDに変更してください
+        - GROUP_ID=20 # ホストのグループIDに変更してください
+        - APP_NAME=asset_watch
+    tty: true
+    volumes:
+      - ./app:/app
+    environment:
+      - WATCHPACK_POLLING=true
+    ports:
+      - "3000:3000"
+    networks:
+      - app_net
+    # command: /bin/bash -c "yarn start" # 本番環境ではコメントアウトしてください
+networks:
+  app_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.18.0.0/24

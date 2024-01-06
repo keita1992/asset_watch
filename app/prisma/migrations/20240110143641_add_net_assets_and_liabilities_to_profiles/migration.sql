@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE `profiles` ADD COLUMN `liabilities` INTEGER NOT NULL DEFAULT 0,
+    ADD COLUMN `net_assets` INTEGER NOT NULL DEFAULT 0,
+    MODIFY `emergency_fund` INTEGER NOT NULL DEFAULT 0;
