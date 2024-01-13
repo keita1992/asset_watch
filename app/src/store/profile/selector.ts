@@ -1,5 +1,5 @@
 import { RootState } from '@/store';
 
-export const selectIsProfilesFetched = (state: RootState) => state.profile.isProfilesFetched;
-export const selectProfiles = (state: RootState) => state.profile.profiles;
+export const selectIsProfileFetched = (state: RootState) => state.profile.isProfileFetched;
+export const selectProfile = (state: RootState) => state.profile.profile;
 

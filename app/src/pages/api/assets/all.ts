@@ -1,7 +1,11 @@
-import prisma from "@/libs/prisma";
+import { GetCommand } from "@aws-sdk/lib-dynamodb";
 import { NextApiRequest, NextApiResponse } from "next";
 
+import { docClient } from "@/libs/dynamoDb";
+import * as types from "@/store/asset/type";
+import { Profile } from "@/store/profile";
 import { getColors } from "@/utils/color";
+import { TABLE_NAME, USER_ID } from "@/utils/constants";
 
 export default async function handler(
   req: NextApiRequest,
@@ -25,57 +29,65 @@ export default async function handler(
 
 const getAssets = async (exclude: boolean = false) => {
   try {
-    const groups = await prisma.assets.groupBy({
-      by: ["category"],
-      _sum: {
-        amount: true,
-      },
-      where: {
-        deletedAt: null,
-      },
-      orderBy: [{
-        category: "desc",
-      }],
-    });
-    const assets = await prisma.assets.findMany({
-      where: {
-        deletedAt: null,
-      },
-      orderBy: [{
-        category: "desc",
-      }, {
-        amount: "desc",
-      }],
-    });
-    const profile = await prisma.profiles.findFirst();
-    const emergencyFund = profile?.emergencyFund ?? 0;
+    // アセットとプロフィールを取得
+    const params = {
+      TableName: TABLE_NAME,
+      Key: {
+        userId: USER_ID,
+      }
+    };
+    const response = await docClient.send(new GetCommand(params));
+    const assets = (response.Item?.assets as types.Asset[]) || [];
+    const profile = response.Item?.profile as Profile;
 
-    const colors: { [id: string]: string } = {};
-    getColors(groups.length).forEach((color, index) => {
-      colors[groups[index].category] = color;
+    // deletedAtがnullのアセットのみを取得
+    const validAssets = assets.filter(asset => asset.deletedAt === null).sort((a, b) => b.amount - a.amount);
+
+    // カテゴリでグループ化
+    const groupedByCategory = validAssets.reduce((acc, asset) => {
+      (acc[asset.category] = acc[asset.category] || []).push(asset);
+      return acc;
+    }, {} as { [key: string]: types.Asset[] });
+
+    // 各カテゴリの合計amountを計算
+    const categoriesWithTotalAmount = Object.entries(groupedByCategory).map(([category, assets]) => {
+      const totalAmount = assets.reduce((sum, asset) => sum + asset.amount, 0);
+      return { category, totalAmount, assets };
     });
-    const assetsData = assets.map((asset) => {
-      // 生活防衛資金を集計に含めない場合は、日本円現金から生活防衛資金を引く
-      if (exclude && asset.category === "現金" && asset.currency === "JPY") {
+
+    // 合計amountが大きい順にカテゴリを並び替え、各カテゴリ内のアセットをamountが大きい順に並び替え
+    const sortedCategories = categoriesWithTotalAmount.sort((a, b) => b.totalAmount - a.totalAmount);
+    sortedCategories.forEach(category => {
+      category.assets.sort((a, b) => b.amount - a.amount);
+    });
+    
+    // categoryの数を集計
+    const colors = getColors(sortedCategories.length);
+    const data = sortedCategories.map((category, index) => {
+      const assets = category.assets.map((asset) => {
+        // 生活防衛資金を集計に含めない場合は、日本円現金から生活防衛資金を引く
+        if (exclude && asset.category === "現金" && asset.currency === "JPY") {
+          return {
+            label: asset.name,
+            value: asset.amount - profile.emergencyFund,
+            color: colors[index],
+            category: asset.category,
+            currency: asset.currency
+          };
+        }
         return {
           label: asset.name,
-          value: asset.amount - emergencyFund,
-          color: colors[asset.category],
+          value: asset.amount,
+          color: colors[index],
           category: asset.category,
-          currency: asset.currency,
+          currency: asset.currency
         };
-      }
-      return {
-        label: asset.name,
-        value: asset.amount,
-        color: colors[asset.category],
-        category: asset.category,
-        currency: asset.currency,
-      };
-    })
+      });
+      return assets;
+    }).flat();
 
-    return assetsData;
+    return data;
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
-}
+};

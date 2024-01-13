@@ -1,43 +1,5 @@
 version: "3"
 services:
-  mysql:
-    container_name: mysql
-    build:
-      context: ./mysql
-      dockerfile: Dockerfile
-    volumes:
-      - "./mysql/db:/var/lib/mysql"
-    environment:
-      MYSQL_ROOT_PASSWORD: password
-      TZ: "Asia/Tokyo"
-    ports:
-      - "3306:3306"
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-    networks:
-      app_net:
-  phpmyadmin:
-    container_name: phpmyadmin
-    build:
-      context: ./phpmyadmin
-      dockerfile: Dockerfile
-    environment:
-      - PMA_ARBITRARY=1
-      - PMA_HOST=mysql
-      - PMA_USER=root
-      - PMA_PASSWORD=password
-    links:
-      - mysql
-    ports:
-      - "8080:80"
-    deploy:
-      resources:
-        limits:
-          memory: 128M
-    networks:
-      app_net:
   nodejs:
     container_name: nodejs
     build:

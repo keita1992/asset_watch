@@ -22,9 +22,10 @@ type Props = {
 }
 
 export const AssetBarChart = ({ data }: Props) => {
+  const sortedData = [...data].sort((a, b) => b.value - a.value);
   return (
     <BarChart
-      dataset={data}
+      dataset={sortedData}
       yAxis={[{ scaleType: 'band', dataKey: 'label' }]}
       series={[{ dataKey: 'value', label: '資産総額', valueFormatter }]}
       layout="horizontal"

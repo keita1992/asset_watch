@@ -1,5 +1,5 @@
 
-import { FormControlLabel, Grid, Input, Switch, TextField } from "@mui/material";
+import { FormControlLabel, Grid, Switch } from "@mui/material";
 import { GetServerSideProps } from "next";
 import dynamic from "next/dynamic";
 import { useState } from "react";
@@ -8,12 +8,12 @@ import { Panel } from "@/components/elements/Panel";
 
 import { AllAssetsPieChart } from "@/features/dashboard/components/AllAssetsPieChart";
 import { AssetBarChart } from "@/features/dashboard/components/AssetBarChart";
+import { CategoryDetailPieChart } from "@/features/dashboard/components/CategoryDetailPieChart";
+import { CurrencyDetailPieChart } from "@/features/dashboard/components/CurrencyDetailPieChart";
 import { IndicatorPanel } from "@/features/dashboard/components/IndicatorPanel";
 
 import { axios } from "@/libs/axios";
 import { AssetGroupedByCurrency, AssetsData, AssetsGroupedByCategory, AssetsGroupedByCategoryResponse, AssetsGroupedByCurrencyResponse } from "@/store/asset/type";
-import { CategoryDetailPieChart } from "@/features/dashboard/components/CategoryDetailPieChart";
-import { CurrencyDetailPieChart } from "@/features/dashboard/components/CurrencyDetailPieChart";
 
 type Props = {
   assetsGroupedByCategory: AssetsGroupedByCategory;
@@ -96,7 +96,7 @@ export const Dashboard = ({
         </>
       ) : (
         <>
-          <Grid item xs={4}>
+          <Grid item xs={5}>
             <Panel title="重要指標" paperProps={{ textAlign: 'center' }} boxProps={{ justifyContent: 'center' }} >
               <IndicatorPanel data={assets} />
             </Panel>

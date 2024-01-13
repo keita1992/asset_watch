@@ -1,12 +1,10 @@
-export type Id = number;
 export type NetAssets = number;
 export type Liabilities = number;
 export type EmergencyFund = number;
-export type CreatedAt = Date;
-export type ModifiedAt = Date;
+export type CreatedAt = string;
+export type ModifiedAt = string;
 
 export type Profile = {
-  id: Id;
   netAssets: NetAssets;
   liabilities: Liabilities;
   emergencyFund: EmergencyFund;
@@ -25,12 +23,9 @@ export const isRequest = (data: any) => {
 };
 
 // Redux関連
-export type IsProfilesFetched = boolean;
-export type NormalizedProfiles = {
-  [id: string]: Profile;
-};
+export type IsProfileFetched = boolean;
 
 export type State = {
-  isProfilesFetched: IsProfilesFetched;
-  profiles: NormalizedProfiles;
+  isProfileFetched: IsProfileFetched;
+  profile: Profile;
 };

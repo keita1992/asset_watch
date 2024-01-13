@@ -14,7 +14,7 @@ import * as yup from 'yup';
 
 import { useSetSnackbar } from '@/hooks/useSetSnackbar';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { selectProfiles, Request } from '@/store/profile';
+import { selectProfile, Request } from '@/store/profile';
 import { editProfile } from '@/store/profile/operation';
 
 const schema = yup.object({
@@ -40,10 +40,7 @@ const schema = yup.object({
 
 export const ProfileForm = () => {
   const dispatch = useAppDispatch();
-
-  const id = 1; // ログイン機能ができるまでは固定
-  const profiles = useAppSelector(selectProfiles);
-  const profile = profiles[id];
+  const profile = useAppSelector(selectProfile);
 
   const [processing, setIsProcessing] = useState(false);
   const setSnackbar = useSetSnackbar();
@@ -69,7 +66,7 @@ export const ProfileForm = () => {
   const onSubmit = async (data: Request) => {
     try {
       setIsProcessing(true);
-      await dispatch(editProfile(id, data));
+      await dispatch(editProfile(data));
       setSnackbar('success', '登録しました', true);
     } catch (e) {
       setSnackbar('error', '登録に失敗しました', true);
@@ -133,7 +130,7 @@ export const ProfileForm = () => {
         color="primary"
         disabled={processing || !isDirty || Object.keys(errors).length > 0}
       >
-        {id === null ? '新規追加する' : '更新する'}
+        更新する
       </Button>
     </Stack>
   );

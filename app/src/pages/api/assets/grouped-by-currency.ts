@@ -1,8 +1,12 @@
-
+import { GetCommand } from "@aws-sdk/lib-dynamodb";
 import { NextApiRequest, NextApiResponse } from "next";
 
-import prisma from "@/libs/prisma";
+import { docClient } from "@/libs/dynamoDb";
+import * as types from "@/store/asset/type";
+import { Profile } from "@/store/profile";
+import { sumBy } from "@/utils/aggregate";
 import { getColors } from "@/utils/color";
+import { TABLE_NAME, USER_ID } from "@/utils/constants";
 
 export default async function handler(
   req: NextApiRequest,
@@ -13,7 +17,7 @@ export default async function handler(
       return res.status(405).json({ message: "Method not allowed" });
     }
     const exclude = req.query?.excludeEmergencyFund === "true";
-    const assets = await getAssetsGroupedByCurrency(exclude);
+    const assets = await groupedByCurrency(exclude);
     const responseData = {
       assets: assets,
     }
@@ -24,37 +28,53 @@ export default async function handler(
   }
 }
 
-const getAssetsGroupedByCurrency = async (exclude: boolean = false) => {
+type SumByGroup = {
+  [_key in types.Currency]: number;
+};
+
+const groupedByCurrency = async (exclude: boolean = false) => {
   try {
-    const assetsGroupedByCurrency = await prisma.assets.groupBy({
-      by: ["currency"],
-      _sum: {
-        amount: true,
-      },
-      where: {
-        deletedAt: null,
+    // アセットとプロフィールを取得
+    const params = {
+      TableName: TABLE_NAME,
+      Key: {
+        userId: USER_ID,
       }
-    });
-    const profile = await prisma.profiles.findFirst();
+    };
+    const response = await docClient.send(new GetCommand(params));
+    const assets = (response.Item?.assets as types.Asset[]) || [];
+    const validAssets = assets.filter(asset => asset.deletedAt === null);
+
+    const profile = response.Item?.profile as Profile;
     const emergencyFund = profile?.emergencyFund ?? 0;
 
-    const colors = getColors(assetsGroupedByCurrency.length);
-    const assets = assetsGroupedByCurrency.map((asset, index) => {
-      // 生活防衛資金を含まない場合はJPYから生活防衛資金を引く
-      if (exclude && asset.currency === "JPY") {
+    const sumByGroup = sumBy(validAssets, "currency", "amount") as SumByGroup;
+    const sumByGroupArray = Object.entries(sumByGroup).map(([currency, sum]) => {
+      return {
+        currency,
+        sum,
+      };
+    }).sort((a, b) => b.sum - a.sum);
+
+    const colors = getColors(Object.keys(sumByGroup).length);
+    
+    const assetsGroupedByCurrency = sumByGroupArray.map((group, index) => {
+      // 生活防衛資金を含まない場合は現金の金額から生活防衛資金を引く
+      if (exclude && group.currency === "JPY") {
         return {
-          label: asset.currency,
-          value: (asset._sum.amount ?? 0) - emergencyFund,
+          label: group.currency,
+          value: group.sum - emergencyFund,
           color: colors[index],
         };
       }
       return {
-        label: asset.currency,
-        value: asset._sum.amount,
+        label: group.currency,
+        value: group.sum,
         color: colors[index],
       };
     });
-    return assets;
+
+    return assetsGroupedByCurrency;
   } catch (error) {
     console.log(error);
   }

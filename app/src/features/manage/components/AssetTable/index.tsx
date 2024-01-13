@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { DataGrid, GridColDef, GridRenderCellParams, GridValueFormatterParams, jaJP } from '@mui/x-data-grid';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { useMemo } from 'react';
 
 import { DeleteButton } from './DeleteButton';
@@ -45,8 +45,8 @@ export const AssetTable = () => {
       .map((asset) => {
         return {
           ...asset,
-          createdAt: format(new Date(asset.createdAt), 'yyyy/MM/dd'),
-          modifiedAt: format(new Date(asset.modifiedAt), 'yyyy/MM/dd'),
+          createdAt: format(parseISO(asset.createdAt), 'yyyy/MM/dd'),
+          modifiedAt: format(parseISO(asset.modifiedAt), 'yyyy/MM/dd'),
         };
       });
   }, [assets]);

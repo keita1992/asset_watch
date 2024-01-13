@@ -1,7 +1,12 @@
-import prisma from "@/libs/prisma";
+import { GetCommand } from "@aws-sdk/lib-dynamodb";
 import { NextApiRequest, NextApiResponse } from "next";
 
+import { docClient } from "@/libs/dynamoDb";
+import * as types from "@/store/asset/type";
+import { Profile } from "@/store/profile";
+import { sumBy } from "@/utils/aggregate";
 import { getColors } from "@/utils/color";
+import { TABLE_NAME, USER_ID } from "@/utils/constants";
 
 export default async function handler(
   req: NextApiRequest,
@@ -12,7 +17,7 @@ export default async function handler(
       return res.status(405).json({ message: "Method not allowed" });
     }
     const exclude = req.query?.excludeEmergencyFund === "true";
-    const assets = await getAssetsGroupedByCategory(exclude);
+    const assets = await groupedByCategory(exclude);
     const responseData = {
       assets: assets,
     }
@@ -23,36 +28,48 @@ export default async function handler(
   }
 }
 
-const getAssetsGroupedByCategory = async (exclude: boolean = false) => {
+type SumByGroup = {
+  [_key in types.Category]: number;
+};
+
+const groupedByCategory = async (exclude: boolean = false) => {
   try {
-    const groups = await prisma.assets.groupBy({
-      by: ["category"],
-      _sum: {
-        amount: true,
-      },
-      where: {
-        deletedAt: null,
-      },
-      orderBy: [{
-        category: "desc",
-      }],
-    });
-    const profile = await prisma.profiles.findFirst();
+    // アセットとプロフィールを取得
+    const params = {
+      TableName: TABLE_NAME,
+      Key: {
+        userId: USER_ID,
+      }
+    };
+    const response = await docClient.send(new GetCommand(params));
+    const assets = (response.Item?.assets as types.Asset[]) || [];
+    const validAssets = assets.filter(asset => asset.deletedAt === null);
+
+    const profile = response.Item?.profile as Profile;
     const emergencyFund = profile?.emergencyFund ?? 0;
 
-    const colors = getColors(groups.length)
-    const assetsGroupedByCategory = groups.map((group, index) => {
+    const sumByGroup = sumBy(validAssets, "category", "amount") as SumByGroup;
+    const sumByGroupArray = Object.entries(sumByGroup).map(([category, sum]) => {
+      return {
+        category,
+        sum,
+      };
+    }).sort((a, b) => b.sum - a.sum);
+
+    const colors = getColors(Object.keys(sumByGroup).length);
+    
+    const assetsGroupedByCategory = sumByGroupArray.map((group, index) => {
       // 生活防衛資金を含まない場合は現金の金額から生活防衛資金を引く
       if (exclude && group.category === "現金") {
         return {
           label: group.category,
-          value: (group._sum.amount ?? 0) - emergencyFund,
+          value: group.sum - emergencyFund,
           color: colors[index],
         };
       }
       return {
         label: group.category,
-        value: group._sum.amount,
+        value: group.sum,
         color: colors[index],
       };
     });

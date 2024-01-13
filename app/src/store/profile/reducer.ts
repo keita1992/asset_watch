@@ -2,21 +2,27 @@ import { Actions } from "./action";
 import { State } from "./type";
 
 const initState: State = {
-  isProfilesFetched: false,
-  profiles: {},
+  isProfileFetched: false,
+  profile: {
+    netAssets: 0,
+    liabilities: 0,
+    emergencyFund: 0,
+    createdAt: "",
+    modifiedAt: "",
+  }
 };
 
 export const profileReducer = (state = initState, action: Actions) => {
   switch (action.type) {
-    case "SET_IS_PROFILES_FETCHED":
+    case "SET_IS_PROFILE_FETCHED":
       return {
         ...state,
-        isProfilesFetched: action.payload,
+        isProfileFetched: action.payload,
       };
-    case "SET_PROFILES":
+    case "SET_PROFILE":
       return {
         ...state,
-        profiles: action.payload,
+        profile: action.payload,
       };
     default:
       return state;

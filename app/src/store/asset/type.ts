@@ -3,9 +3,9 @@ export type Name = string;
 export type Currency = 'JPY' | 'USD' | 'EUR' | 'CHF' | 'AUD' | 'CAD';
 export type Category = '日本株' | '米国株' | '債券' | '投資信託' | 'コモディティ' | '現金' | 'その他';
 export type Amount = number;
-export type CreatedAt = Date;
-export type ModifiedAt = Date;
-export type DeletedAt = Date | null;
+export type CreatedAt = string;
+export type ModifiedAt = string;
+export type DeletedAt = string | null;
 
 export type Asset = {
   id: Id;

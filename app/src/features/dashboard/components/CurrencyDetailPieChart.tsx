@@ -1,11 +1,11 @@
+import { FormControl, MenuItem, Select } from '@mui/material';
 import { DefaultizedPieValueType } from '@mui/x-charts';
 import { PieChart, pieArcLabelClasses } from '@mui/x-charts/PieChart';
 import * as React from 'react';
 
-import { AssetGroupedByCurrency, AssetsData, Currency } from '@/store/asset';
-import { decimalToPercent } from '@/utils/formatter';
-import { Box, FormControl, Menu, MenuItem, Select, TextField } from '@mui/material';
+import { AssetsData, Currency } from '@/store/asset';
 import { getColors } from '@/utils/color';
+import { decimalToPercent } from '@/utils/formatter';
 
 type Props = {
   data: AssetsData;

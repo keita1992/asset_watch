@@ -59,12 +59,10 @@ export const deleteAsset = (id: types.Id) => {
   return async (dispatch: AppDispatch, getState: () => RootState) => {
     try {
       const response = await axios.delete<types.Asset>(`/api/assets/${id}`);
-      if (response.status === 200) {
-        const deletedAsset = response.data;
+      if (response.status === 204) {
         const assets = getState().asset.assets;
         const newAssets = { ...assets };
-        delete newAssets[deletedAsset.id];
-        
+        delete newAssets[id];
         dispatch(actions.setAssets(newAssets));
       }
     } catch (error) {

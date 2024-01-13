@@ -1,18 +1,18 @@
 import * as types from './type';
 
-export const SET_IS_PROFILES_FETCHED = 'SET_IS_PROFILES_FETCHED' as const;
-export const SET_PROFILES = 'SET_PROFILES' as const;
+export const SET_IS_PROFILE_FETCHED = 'SET_IS_PROFILE_FETCHED' as const;
+export const SET_PROFILE = 'SET_PROFILE' as const;
 
-export const setIsProfilesFetched = (payload: types.IsProfilesFetched) => ({
-  type: SET_IS_PROFILES_FETCHED,
+export const setIsProfileFetched = (payload: types.IsProfileFetched) => ({
+  type: SET_IS_PROFILE_FETCHED,
   payload,
 });
 
-export const setProfiles = (payload: types.NormalizedProfiles) => ({
-  type: SET_PROFILES,
+export const setProfile = (payload: types.Profile) => ({
+  type: SET_PROFILE,
   payload,
 });
 
 export type Actions =
-  | ReturnType<typeof setIsProfilesFetched>
-  | ReturnType<typeof setProfiles>;
+  | ReturnType<typeof setIsProfileFetched>
+  | ReturnType<typeof setProfile>;
