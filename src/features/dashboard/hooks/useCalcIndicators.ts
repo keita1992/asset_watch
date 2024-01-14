@@ -6,8 +6,12 @@ export const useCalcIndicators = (assets: AssetsData) => {
     jpyCashRatio: 0,
     totalAmount: 0,
   };
-  const cachAmount = assets.filter((asset) => asset.category === "現金").reduce((sum, asset) => sum + asset.value, 0);
-  const jpyCashAmount = assets.filter((asset) => asset.category === "現金" && asset.currency === "JPY").reduce((sum, asset) => sum + asset.value, 0);
+  const cachAmount = assets
+    .filter((asset) => asset.category === "現金")
+    .reduce((sum, asset) => sum + asset.value, 0);
+  const jpyCashAmount = assets
+    .filter((asset) => asset.category === "現金" && asset.currency === "JPY")
+    .reduce((sum, asset) => sum + asset.value, 0);
   const totalAmount = assets.reduce((sum, asset) => sum + asset.value, 0);
 
   // 現金比率
@@ -26,4 +30,4 @@ export const useCalcIndicators = (assets: AssetsData) => {
   indicators["totalAmount"] = totalAmount;
 
   return indicators;
-}
+};

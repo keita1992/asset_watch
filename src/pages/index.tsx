@@ -145,6 +145,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
     const assetsGroupedByCurrencyWithoutEmergencyFund = await getAssetsGroupedByCurrencyWithoutEmergencyFund();
     const assets = await getAssets();
     const assetsWithoutEmergencyFund = await getAssetsWithoutEmergencyFund();
+
     return {
       props: {
         assetsGroupedByCategory,
@@ -165,6 +166,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
 // カテゴリごとの資産
 const getAssetsGroupedByCategory = async () => {
   const res = await axios.get<AssetsGroupedByCategoryResponse>('/api/assets/grouped-by-category');
+
   return res.data.assets;
 }
 
