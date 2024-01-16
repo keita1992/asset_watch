@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+module.exports = {
   transpilePackages: ['@mui/x-charts'],
   env: {
     REGION: process.env.REGION,
@@ -7,5 +7,3 @@ const nextConfig = {
     SECRET_ACCESS_KEY: process.env.SECRET_ACCESS_KEY,
   }
 }
-
-module.exports = nextConfig

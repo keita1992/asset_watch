@@ -1,33 +1,47 @@
+import { Id as UserId } from "../user/type";
+
 export type Id = string;
 export type Name = string;
-export type Currency = 'JPY' | 'USD' | 'EUR' | 'CHF' | 'AUD' | 'CAD';
-export type Category = '日本株' | '米国株' | '債券' | '投資信託' | 'コモディティ' | '現金' | 'その他';
+export type Currency = "JPY" | "USD" | "EUR" | "CHF" | "AUD" | "CAD";
+export type Category =
+  | "日本株"
+  | "米国株"
+  | "債券"
+  | "投資信託"
+  | "コモディティ"
+  | "現金"
+  | "その他";
 export type Amount = number;
 export type CreatedAt = string;
-export type ModifiedAt = string;
+export type UpdatedAt = string;
 export type DeletedAt = string | null;
 
 export type Asset = {
   id: Id;
   name: Name;
+  userId: UserId;
   currency: Currency;
   category: Category;
   amount: Amount;
   createdAt: CreatedAt;
-  modifiedAt: ModifiedAt;
+  updatedAt: UpdatedAt;
   deletedAt: DeletedAt;
 };
 
-export type Request = Omit<Asset, "id" | "createdAt" | "modifiedAt" | "deletedAt">;
+export type Request = Omit<
+  Asset,
+  "id" | "userId" | "createdAt" | "updatedAt" | "deletedAt"
+>;
 
 export const isRequest = (data: any) => {
   return (
+    typeof data.userId === "string" &&
     typeof data.name === "string" &&
     typeof data.currency === "string" &&
     typeof data.category === "string" &&
     typeof data.amount === "number"
   );
-}
+};
 
 // API関連
 export type AssetsGroupedByCategory = {

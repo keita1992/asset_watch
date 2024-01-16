@@ -14,10 +14,11 @@ import * as yup from 'yup';
 
 import { useSetSnackbar } from '@/hooks/useSetSnackbar';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { selectProfile, Request } from '@/store/profile';
-import { editProfile } from '@/store/profile/operation';
+import { selectUser, Request } from '@/store/user';
+import { editUser } from '@/store/user/operation';
 
 const schema = yup.object({
+  name: yup.string().required('入力してください'),
   netAssets: yup
     .number()
     .typeError('整数を入力してください')
@@ -40,15 +41,16 @@ const schema = yup.object({
 
 export const ProfileForm = () => {
   const dispatch = useAppDispatch();
-  const profile = useAppSelector(selectProfile);
+  const user = useAppSelector(selectUser);
 
   const [processing, setIsProcessing] = useState(false);
   const setSnackbar = useSetSnackbar();
 
   const defaultValues = {
-    netAssets: profile.netAssets,
-    liabilities: profile.liabilities,
-    emergencyFund: profile.emergencyFund,
+    name: user.name,
+    netAssets: user.netAssets,
+    liabilities: user.liabilities,
+    emergencyFund: user.emergencyFund,
   } as Request;
 
   const options = {
@@ -66,7 +68,7 @@ export const ProfileForm = () => {
   const onSubmit = async (data: Request) => {
     try {
       setIsProcessing(true);
-      await dispatch(editProfile(data));
+      await dispatch(editUser(data));
       setSnackbar('success', '登録しました', true);
     } catch (e) {
       setSnackbar('error', '登録に失敗しました', true);
@@ -82,6 +84,19 @@ export const ProfileForm = () => {
       onSubmit={handleSubmit(onSubmit)}
       sx={{ width: '70%' }}
     >
+      {/* 名前 */}
+      <FormControl required>
+        <InputLabel>名前</InputLabel>
+        <OutlinedInput
+          required
+          autoComplete="off"
+          label="名前"
+          error={'name' in errors}
+          {...register('name')}
+        />
+        <FormHelperText error>{errors?.name?.message ?? ''}</FormHelperText>
+      </FormControl>
+
       {/* 総資産 */}
       <FormControl required>
         <InputLabel>総資産</InputLabel>

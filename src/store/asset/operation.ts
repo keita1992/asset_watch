@@ -1,13 +1,16 @@
-import * as actions from './action';
-import * as types from './type';
+import * as actions from "./action";
+import * as types from "./type";
 
-import { axios } from '@/libs/axios';
-import { AppDispatch, RootState } from '@/store';
+import { axios } from "@/libs/axios";
+import { AppDispatch, RootState } from "@/store";
+import { USER_ID } from "@/utils/constants";
 
 export const fetchAssets = () => {
   return async (dispatch: AppDispatch) => {
     try {
-      const response = await axios.get<types.Asset[]>('/api/assets');
+      const response = await axios.get<types.Asset[]>(
+        `/api/assets/?userId=${USER_ID}`
+      );
       if (response.status === 200) {
         const assets = response.data;
         const normalizedAssets: types.NormalizedAssets = {};
@@ -20,13 +23,16 @@ export const fetchAssets = () => {
     } catch (error) {
       console.error(error);
     }
-  }
-}
+  };
+};
 
 export const addAsset = (data: types.Request) => {
   return async (dispatch: AppDispatch, getState: () => RootState) => {
     try {
-      const response = await axios.post<types.Asset>('/api/assets', data);
+      const response = await axios.post<types.Asset>("/api/assets", {
+        ...data,
+        userId: USER_ID,
+      });
       if (response.status === 201) {
         const newAsset = response.data;
         const assets = getState().asset.assets;
@@ -36,13 +42,16 @@ export const addAsset = (data: types.Request) => {
     } catch (error) {
       console.error(error);
     }
-  }
-}
+  };
+};
 
 export const editAsset = (id: types.Id, data: types.Request) => {
   return async (dispatch: AppDispatch, getState: () => RootState) => {
     try {
-      const response = await axios.patch<types.Asset>(`/api/assets/${id}`, data);
+      const response = await axios.patch<types.Asset>(`/api/assets/${id}`, {
+        ...data,
+        userId: USER_ID,
+      });
       if (response.status === 200) {
         const editedAsset = response.data;
         const assets = getState().asset.assets;
@@ -52,8 +61,8 @@ export const editAsset = (id: types.Id, data: types.Request) => {
     } catch (error) {
       console.error(error);
     }
-  }
-}
+  };
+};
 
 export const deleteAsset = (id: types.Id) => {
   return async (dispatch: AppDispatch, getState: () => RootState) => {
@@ -68,5 +77,5 @@ export const deleteAsset = (id: types.Id) => {
     } catch (error) {
       console.error(error);
     }
-  }
-}
+  };
+};

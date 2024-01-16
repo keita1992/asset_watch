@@ -46,7 +46,7 @@ export const AssetTable = () => {
         return {
           ...asset,
           createdAt: format(parseISO(asset.createdAt), 'yyyy/MM/dd'),
-          modifiedAt: format(parseISO(asset.modifiedAt), 'yyyy/MM/dd'),
+          updatedAt: format(parseISO(asset.updatedAt), 'yyyy/MM/dd'),
         };
       });
   }, [assets]);
@@ -127,7 +127,7 @@ export const AssetTable = () => {
       width: 130,
     },
     {
-      field: 'modifiedAt',
+      field: 'updatedAt',
       headerName: '更新日',
       width: 130,
     },

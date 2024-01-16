@@ -1,18 +1,22 @@
+export type Id = string;
+export type Name = string;
 export type NetAssets = number;
 export type Liabilities = number;
 export type EmergencyFund = number;
 export type CreatedAt = string;
-export type ModifiedAt = string;
+export type UpdatedAt = string;
 
-export type Profile = {
+export type User = {
+  id: Id;
+  name: Name;
   netAssets: NetAssets;
   liabilities: Liabilities;
   emergencyFund: EmergencyFund;
   createdAt: CreatedAt;
-  modifiedAt: ModifiedAt;
+  updatedAt: UpdatedAt;
 };
 
-export type Request = Omit<Profile, "id" | "createdAt" | "modifiedAt">;
+export type Request = Omit<User, "id" | "createdAt" | "updatedAt">;
 
 export const isRequest = (data: any) => {
   return (
@@ -23,9 +27,9 @@ export const isRequest = (data: any) => {
 };
 
 // Redux関連
-export type IsProfileFetched = boolean;
+export type IsUserFetched = boolean;
 
 export type State = {
-  isProfileFetched: IsProfileFetched;
-  profile: Profile;
+  isUserFetched: IsUserFetched;
+  user: User;
 };

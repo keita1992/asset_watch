@@ -5,15 +5,15 @@ import { useEffect } from "react";
 import { ProfileForm } from "@/features/profile/components/ProfileForm";
 
 import { useAppDispatch, useAppSelector } from "@/store";
-import { selectIsProfileFetched, fetchProfile } from "@/store/profile";
+import { selectIsUserFetched, fetchUser } from "@/store/user";
 
-export const Manage = () => {
+export default function Profile() {
   const dispatch = useAppDispatch();
-  const isFetched = useAppSelector(selectIsProfileFetched);
+  const isFetched = useAppSelector(selectIsUserFetched);
 
   useEffect(() => {
     if (!isFetched) {
-      dispatch(fetchProfile());
+      dispatch(fetchUser());
     }
   }, []);
 
@@ -30,5 +30,3 @@ export const Manage = () => {
     </Grid>
   )
 }
-
-export default Manage;

@@ -1,0 +1,6 @@
+{
+  "AppSyncApiName": "assetwatch",
+  "DynamoDBBillingMode": "PAY_PER_REQUEST",
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthModeLastUpdated": "2024-01-16T14:05:19.356Z"
+}

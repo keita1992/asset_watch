@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "serviceConfiguration": {
+    "apiName": "assetwatch",
+    "serviceName": "AppSync",
+    "defaultAuthType": {
+      "mode": "API_KEY",
+      "expirationTime": 365,
+      "apiKeyExpirationDate": "2025-01-15T14:05:13.269Z",
+      "keyDescription": "dev"
+    },
+    "conflictResolution": {},
+    "additionalAuthTypes": []
+  }
+}

@@ -166,19 +166,21 @@ export const getServerSideProps: GetServerSideProps = async () => {
 // カテゴリごとの資産
 const getAssetsGroupedByCategory = async () => {
   const res = await axios.get<AssetsGroupedByCategoryResponse>('/api/assets/grouped-by-category');
-
+  console.log('getAssetsGroupedByCategory', res.data.assets);
   return res.data.assets;
 }
 
 // 通貨ごとの資産
 const getAssetsGroupedByCurrency = async () => {
   const res = await axios.get<AssetsGroupedByCurrencyResponse>('/api/assets/grouped-by-currency');
+  console.log('getAssetsGroupedByCurrency', res.data.assets);
   return res.data.assets;
 }
 
 // 資産
 const getAssets = async () => {
   const res = await axios.get('/api/assets/all');
+  console.log('getAssets', res.data.assets);
   return res.data.assets;
 }
 
@@ -189,6 +191,7 @@ const getAssetsGroupedByCategoryWithoutEmergencyFund = async () => {
       excludeEmergencyFund: true
     }
   });
+  console.log('getAssetsGroupedByCategoryWithoutEmergencyFund', res.data.assets);
   return res.data.assets;
 }
 
@@ -199,6 +202,7 @@ const getAssetsGroupedByCurrencyWithoutEmergencyFund = async () => {
       excludeEmergencyFund: true
     }
   });
+  console.log('getAssetsGroupedByCurrencyWithoutEmergencyFund', res.data.assets);
   return res.data.assets;
 }
 
@@ -208,6 +212,7 @@ const getAssetsWithoutEmergencyFund = async () => {
       excludeEmergencyFund: true
     }
   });
+  console.log('getAssetsWithoutEmergencyFund', res.data.assets);
   return res.data.assets;
 }
 

@@ -6,6 +6,8 @@ export const useCalcIndicators = (assets: AssetsData) => {
     jpyCashRatio: 0,
     totalAmount: 0,
   };
+  // データが取れてなかったらそのまま返す
+  if (!assets || assets.length === 0) return indicators;
   const cachAmount = assets
     .filter((asset) => asset.category === "現金")
     .reduce((sum, asset) => sum + asset.value, 0);

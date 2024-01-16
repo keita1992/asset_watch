@@ -1,53 +1,55 @@
-import { GetCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
-
-import { docClient } from "@/libs/dynamoDb";
-import { Asset } from "@/store/asset";
-import { Profile } from "@/store/profile";
-import { TABLE_NAME, USER_ID } from "@/utils/constants";
+import { updateAsset } from "@/graphql/mutations";
+import { getUser, listAssets } from "@/graphql/queries";
+import { client as API } from "@/libs/amplify";
+import { USER_ID } from "@/utils/constants";
 
 export const updateJpyCash = async () => {
-  try {
-    const getParams = {
-      TableName: TABLE_NAME,
-      Key: {
-        userId: USER_ID,
-      }
-    }
-    const result = await docClient.send(new GetCommand(getParams));
-    if (!result.Item) return [];
-
-    const assets = result.Item.assets.filter((asset: Asset) => !asset.deletedAt) as Asset[];
-    const profile = result.Item.profile as Profile;
-
-    const amountWithoutJpyCash = assets.reduce((acc, asset) => {
-      if (asset.currency === "JPY" && asset.category === "現金") {
-        return acc;
-      }
-      return acc + asset.amount;
-    }, 0);
-
-    const jpyCashAmount = profile.netAssets - profile.liabilities - amountWithoutJpyCash;
-    const jpyCash = assets.find((asset) => asset.currency === "JPY" && asset.category === "現金");
-    if (!jpyCash) return;
-
-    const updateParam = {
-      TableName: TABLE_NAME,
-      Key: {
-        userId: USER_ID,
-      },
-      UpdateExpression: "set assets = :assets",
-      ExpressionAttributeValues: {
-        ":assets": [
-          ...assets.filter((asset) => asset.id !== jpyCash.id),
+  const assetsWithoutJpyCash = await API.graphql({
+    query: listAssets,
+    variables: {
+      filter: {
+        and: [
+          { userId: { eq: USER_ID } },
+          { deletedAt: { attributeExists: false } },
           {
-            ...jpyCash,
-            amount: jpyCashAmount,
-          }
-        ]
-      }
-    }
-    return await docClient.send(new UpdateCommand(updateParam));
-  } catch (error) {
-    console.log(error);
-  }
-}
+            or: [{ category: { ne: "現金" } }, { currency: { ne: "JPY" } }],
+          },
+        ],
+      },
+    },
+  }).then((res) => res.data.listAssets.items);
+
+  const jpyCash = await API.graphql({
+    query: listAssets,
+    variables: {
+      filter: {
+        userId: { eq: USER_ID },
+        category: { eq: "現金" },
+        currency: { eq: "JPY" },
+        deletedAt: { attributeExists: false },
+      },
+    },
+  }).then((res) => res.data.listAssets.items[0]);
+
+  const user = await API.graphql({
+    query: getUser,
+    variables: {
+      id: USER_ID,
+    },
+  }).then((res) => res.data.getUser);
+
+  const jpyCashAmount =
+    (user?.netAssets ?? 0) -
+    (user?.liabilities ?? 0) -
+    assetsWithoutJpyCash.reduce((acc, cur) => acc + cur.amount, 0);
+
+  await API.graphql({
+    query: updateAsset,
+    variables: {
+      input: {
+        id: jpyCash.id,
+        amount: jpyCashAmount,
+      },
+    },
+  }).then((res) => res.data.updateAsset);
+};

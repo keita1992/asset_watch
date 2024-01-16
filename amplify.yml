@@ -8,9 +8,6 @@ frontend:
         - yarn install
     build:
       commands:
-        # ランタイム時に環境変数を読み込めるように
-        # .envファイルにDynamoDBアクセス用の環境変数を書き出す
-        - env | grep -e REGION -e ACCESS_KEY_ID -e SECRET_ACCESS_KEY >> .env
         - yarn run build
   artifacts:
     baseDirectory: .next

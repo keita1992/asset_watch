@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from "@/store";
 import { selectIsAssetsFetched } from "@/store/asset";
 import { fetchAssets } from "@/store/asset/operation";
 
-export const Manage = () => {
+export default function Manage() {
   const dispatch = useAppDispatch();
   const isFetched = useAppSelector(selectIsAssetsFetched);
 
@@ -36,5 +36,3 @@ export const Manage = () => {
     </Grid>
   )
 }
-
-export default Manage;

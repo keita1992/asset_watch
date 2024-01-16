@@ -1,12 +1,12 @@
-import { GetCommand } from "@aws-sdk/lib-dynamodb";
 import { NextApiRequest, NextApiResponse } from "next";
 
-import { docClient } from "@/libs/dynamoDb";
+import { listAssets, getUser } from "@/graphql/queries";
+import { client as API } from "@/libs/amplify";
 import * as types from "@/store/asset/type";
-import { Profile } from "@/store/profile";
+import { User } from "@/store/user";
 import { sumBy } from "@/utils/aggregate";
 import { getColors } from "@/utils/color";
-import { TABLE_NAME, USER_ID } from "@/utils/constants";
+import { USER_ID } from "@/utils/constants";
 
 export default async function handler(
   req: NextApiRequest,
@@ -20,7 +20,7 @@ export default async function handler(
     const assets = await groupedByCategory(exclude);
     const responseData = {
       assets: assets,
-    }
+    };
     return res.status(200).json(responseData);
   } catch (error) {
     console.log(error);
@@ -34,30 +34,36 @@ type SumByGroup = {
 
 const groupedByCategory = async (exclude: boolean = false) => {
   try {
-    // アセットとプロフィールを取得
-    const params = {
-      TableName: TABLE_NAME,
-      Key: {
-        userId: USER_ID,
-      }
-    };
-    const response = await docClient.send(new GetCommand(params));
-    const assets = (response.Item?.assets as types.Asset[]) || [];
-    const validAssets = assets.filter(asset => asset.deletedAt === null);
+    const fetchAssetsResponse = await API.graphql({
+      query: listAssets,
+      variables: {
+        filter: {
+          userId: { eq: USER_ID },
+          deletedAt: { attributeExists: false },
+        },
+      },
+    });
+    const fetchUserResponse = await API.graphql({
+      query: getUser,
+      variables: { id: USER_ID },
+    });
+    const assets = fetchAssetsResponse.data.listAssets.items as types.Asset[];
+    const user = fetchUserResponse.data.getUser as User;
 
-    const profile = response.Item?.profile as Profile;
-    const emergencyFund = profile?.emergencyFund ?? 0;
+    const emergencyFund = user?.emergencyFund ?? 0;
 
-    const sumByGroup = sumBy(validAssets, "category", "amount") as SumByGroup;
-    const sumByGroupArray = Object.entries(sumByGroup).map(([category, sum]) => {
-      return {
-        category,
-        sum,
-      };
-    }).sort((a, b) => b.sum - a.sum);
+    const sumByGroup = sumBy(assets, "category", "amount") as SumByGroup;
+    const sumByGroupArray = Object.entries(sumByGroup)
+      .map(([category, sum]) => {
+        return {
+          category,
+          sum,
+        };
+      })
+      .sort((a, b) => b.sum - a.sum);
 
     const colors = getColors(Object.keys(sumByGroup).length);
-    
+
     const assetsGroupedByCategory = sumByGroupArray.map((group, index) => {
       // 生活防衛資金を含まない場合は現金の金額から生活防衛資金を引く
       if (exclude && group.category === "現金") {
@@ -78,4 +84,4 @@ const groupedByCategory = async (exclude: boolean = false) => {
   } catch (error) {
     console.log(error);
   }
-}
+};
