@@ -86,7 +86,7 @@ type Props = {
 export const Layout = ({ children }: Props) => {
   const theme = useTheme();
   const router = useRouter();
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   const handleDrawerOpen = () => {
     setOpen(true);

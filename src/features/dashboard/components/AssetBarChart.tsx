@@ -10,8 +10,8 @@ const chartSetting = {
       valueFormatter: (value: number) => `${Math.ceil(value / 10000)}万円`,
     },
   ],
-  width: 800,
-  height: 400,
+  width: 600,
+  height: 300,
   margin: { left: 100 },
 };
 

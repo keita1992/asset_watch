@@ -58,37 +58,37 @@ export const Dashboard = ({
       </Grid>
       {checked ? (
         <>
-          <Grid item xs={5}>
+          <Grid item xs={12} lg={5}>
             <Panel title="重要指標" paperProps={{ textAlign: 'center' }} boxProps={{ justifyContent: 'center' }} >
               <IndicatorPanel data={assetsWithoutEmergencyFund} />
             </Panel>
           </Grid>
-          <Grid item xs={7}>
+          <Grid item xs={12} lg={7} >
             <Panel title="資産額" paperProps={{ textAlign: 'center' }}>
               <AssetBarChart data={assetsWithoutEmergencyFund} />
             </Panel>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={12} md={6} lg={4}>
             <Panel title="全資産" paperProps={{ textAlign: 'center' }}>
               <AllAssetsPieChart data={assetsWithoutEmergencyFund} />
             </Panel>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={12} md={6} lg={4}>
             <Panel title="資産クラス" paperProps={{ textAlign: 'center' }}>
               <CategoryPieChart data={assetsGroupedByCategoryWithoutEmergencyFund} />
             </Panel>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={12} md={6} lg={4}>
             <Panel title="通貨" paperProps={{ textAlign: 'center' }}>
               <CurrencyPieChart data={assetsGroupedByCurrencyWithoutEmergencyFund} />
             </Panel>
           </Grid>
-          <Grid item xs={5}>
+          <Grid item xs={12} md={6} lg={5}>
             <Panel title="資産クラス別内訳" paperProps={{ textAlign: 'center' }}>
               <CategoryDetailPieChart data={assetsWithoutEmergencyFund} />
             </Panel>
           </Grid>
-          <Grid item xs={5}>
+          <Grid item xs={12} md={6} lg={5}>
             <Panel title="通貨別内訳" paperProps={{ textAlign: 'center' }}>
               <CurrencyDetailPieChart data={assetsWithoutEmergencyFund} />
             </Panel>
@@ -96,37 +96,37 @@ export const Dashboard = ({
         </>
       ) : (
         <>
-          <Grid item xs={5}>
+          <Grid item lg={5}>
             <Panel title="重要指標" paperProps={{ textAlign: 'center' }} boxProps={{ justifyContent: 'center' }} >
               <IndicatorPanel data={assets} />
             </Panel>
           </Grid>
-          <Grid item xs={7}>
+          <Grid item lg={7}>
             <Panel title="資産額" paperProps={{ textAlign: 'center' }}>
               <AssetBarChart data={assets} />
             </Panel>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item lg={4}>
             <Panel title="全資産" paperProps={{ textAlign: 'center' }}>
               <AllAssetsPieChart data={assets} />
             </Panel>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item lg={4}>
             <Panel title="資産クラス" paperProps={{ textAlign: 'center' }}>
               <CategoryPieChart data={assetsGroupedByCategory} />
             </Panel>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item lg={4}>
             <Panel title="通貨" paperProps={{ textAlign: 'center' }}>
               <CurrencyPieChart data={assetsGroupedByCurrency} />
             </Panel>
           </Grid>
-          <Grid item xs={5}>
+          <Grid item lg={5}>
             <Panel title="資産クラス別内訳" paperProps={{ textAlign: 'center' }}>
               <CategoryDetailPieChart data={assets} />
             </Panel>
           </Grid>
-          <Grid item xs={5}>
+          <Grid item lg={5}>
             <Panel title="通貨別内訳" paperProps={{ textAlign: 'center' }}>
               <CurrencyDetailPieChart data={assets} />
             </Panel>
