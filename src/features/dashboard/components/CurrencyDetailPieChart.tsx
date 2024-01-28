@@ -58,6 +58,9 @@ export const CurrencyDetailPieChart = ({ data }: Props) => {
           <MenuItem value="CHF">CHF</MenuItem>
           <MenuItem value="AUD">AUD</MenuItem>
           <MenuItem value="CAD">CAD</MenuItem>
+          <MenuItem value="HKD">HKD</MenuItem>
+          <MenuItem value="CNY">CNY</MenuItem>
+          <MenuItem value="IDR">IDR</MenuItem>
         </Select>
       </FormControl>
       {displayAssets.length === 0 ? (

@@ -2,10 +2,21 @@ import { Id as UserId } from "../user/type";
 
 export type Id = string;
 export type Name = string;
-export type Currency = "JPY" | "USD" | "EUR" | "CHF" | "AUD" | "CAD";
+export type Currency =
+  | "JPY"
+  | "USD"
+  | "EUR"
+  | "CHF"
+  | "AUD"
+  | "CAD"
+  | "HKD"
+  | "CNY"
+  | "INR";
 export type Category =
   | "日本株"
   | "米国株"
+  | "中国株"
+  | "インド株"
   | "債券"
   | "投資信託"
   | "コモディティ"

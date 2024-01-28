@@ -36,12 +36,12 @@ const schema = yup.object().shape({
     .max(256, '256文字以内で入力してください'),
   currency: yup
     .mixed<Currency>()
-    .oneOf(['JPY', 'USD', 'EUR', 'CHF', 'AUD', 'CAD'], '選択してください')
+    .oneOf(['JPY', 'USD', 'EUR', 'CHF', 'AUD', 'CAD', 'HKD', 'CNY', 'INR'], '選択してください')
     .required('入力してください'),
   category: yup
     .mixed<Category>()
     .oneOf(
-      ['日本株', '米国株', '債券', '投資信託', 'コモディティ', '現金', 'その他'],
+      ['日本株', '米国株', '中国株', 'インド株', '債券', '投資信託', 'コモディティ', '現金', 'その他'],
       '選択してください'
     )
     .required('入力してください'),
@@ -167,6 +167,9 @@ export const AssetForm = () => {
                 <MenuItem value="CHF">CHF</MenuItem>
                 <MenuItem value="AUD">AUD</MenuItem>
                 <MenuItem value="CAD">CAD</MenuItem>
+                <MenuItem value="HKD">HKD</MenuItem>
+                <MenuItem value="CNY">CNY</MenuItem>
+                <MenuItem value="INR">INR</MenuItem>
               </Select>
               <FormHelperText error>
                 {errors?.currency?.message ?? ''}
@@ -185,6 +188,8 @@ export const AssetForm = () => {
               <Select {...field} label="資産クラス" error={'category' in errors}>
                 <MenuItem value="日本株">日本株</MenuItem>
                 <MenuItem value="米国株">米国株</MenuItem>
+                <MenuItem value="中国株">中国株</MenuItem>
+                <MenuItem value="インド株">インド株</MenuItem>
                 <MenuItem value="債券">債券</MenuItem>
                 <MenuItem value="投資信託">投資信託</MenuItem>
                 <MenuItem value="コモディティ">コモディティ</MenuItem>

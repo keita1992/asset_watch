@@ -55,6 +55,8 @@ export const CategoryDetailPieChart = ({ data }: Props) => {
         <Select value={category} onChange={(e) => setCategory(e.target.value as Category)}>
           <MenuItem value="日本株">日本株</MenuItem>
           <MenuItem value="米国株">米国株</MenuItem>
+          <MenuItem value="中国株">中国株</MenuItem>
+          <MenuItem value="インド株">インド株</MenuItem>
           <MenuItem value="投資信託">投資信託</MenuItem>
           <MenuItem value="現金">現金</MenuItem>
           <MenuItem value="債券">債券</MenuItem>
