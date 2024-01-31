@@ -1,15 +1,16 @@
 import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { DataGrid, GridColDef, GridRenderCellParams, GridValueFormatterParams, jaJP } from '@mui/x-data-grid';
+import { DataGrid, GridCellParams, GridColDef, GridRenderCellParams, GridValueFormatterParams, MuiBaseEvent, MuiEvent, jaJP } from '@mui/x-data-grid';
 import { format, parseISO } from 'date-fns';
-import { useMemo } from 'react';
+import { useState, useEffect } from 'react';
 
 import { DeleteButton } from './DeleteButton';
 
 import { Link } from '@/components/elements/Link';
 
 import { useAppDispatch, useAppSelector } from '@/store';
-import { selectAssets } from '@/store/asset';
+import { Asset, selectAssets } from '@/store/asset';
+import { editAsset } from '@/store/asset/operation';
 import { setAssetId, setIsAssetModalOpen } from '@/store/ui';
 import { formatCurrency } from '@/utils/formatter';
 
@@ -38,9 +39,11 @@ export const AssetTable = () => {
   const dispatch = useAppDispatch();
   const assets = useAppSelector(selectAssets);
 
-  const rows = useMemo(() => {
+  const [rows, setRows] = useState<Asset[]>([]);
+
+  useEffect(() => {
     // 日本円現金は自動計算のため表示しない
-    return Object.values(assets)
+    const data = Object.values(assets)
       .filter((asset) => !(asset.currency === 'JPY' && asset.category === '現金'))
       .map((asset) => {
         return {
@@ -49,6 +52,7 @@ export const AssetTable = () => {
           updatedAt: format(parseISO(asset.updatedAt), 'yyyy/MM/dd'),
         };
       });
+    setRows(data);
   }, [assets]);
 
   const handleEditClick = (id: string) => {
@@ -119,7 +123,8 @@ export const AssetTable = () => {
       align: 'right',
       valueFormatter: (params: GridValueFormatterParams<number>) => {
         return formatCurrency(params.value as number);
-      }
+      },
+      editable: true,
     },
     {
       field: 'createdAt',
@@ -141,6 +146,26 @@ export const AssetTable = () => {
     }
   ];
 
+  const handleEditCellStop = async (
+    params: GridCellParams,
+    event: MuiEvent<MuiBaseEvent>,
+  ) => {
+    const { field, row } = params;
+    if (field !== 'amount') {
+      return;
+    }
+    const newValue = (event as React.ChangeEvent<HTMLInputElement>).target.value;
+    if (isNaN(Number(newValue))) {
+      return;
+    }
+    const newAsset = { ...row, [field]: Number(newValue) } as Asset;
+    try {
+      dispatch(editAsset(newAsset.id, newAsset));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <StyledContainer>
       <StyledDataGrid
@@ -156,6 +181,7 @@ export const AssetTable = () => {
             },
           },
         }}
+        onCellEditStop={handleEditCellStop}
       />
     </StyledContainer>
   );

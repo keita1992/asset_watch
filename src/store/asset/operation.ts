@@ -49,7 +49,10 @@ export const editAsset = (id: types.Id, data: types.Request) => {
   return async (dispatch: AppDispatch, getState: () => RootState) => {
     try {
       const response = await axios.patch<types.Asset>(`/api/assets/${id}`, {
-        ...data,
+        name: data.name,
+        category: data.category,
+        currency: data.currency,
+        amount: data.amount,
         userId: USER_ID,
       });
       if (response.status === 200) {
