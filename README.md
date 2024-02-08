@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Asset Watch
+
+Welcome to **Asset Watch** - your dynamic dashboard for monitoring your financial portfolio. This application enables users to input their cash, stocks, and other investments to visualize their asset allocation and assess risk effectively.
+
+## Features
+
+- **Portfolio Visualization**: Get a comprehensive overview of your asset distribution across different categories.
+- **Risk Assessment**: Evaluate the potential risks associated with your investment choices.
+- **Real-time Updates**: Keep your dashboard up-to-date as you add or modify your investments.
+
+## Demo
+
+Experience Asset Watch firsthand through our live demo: [https://asset-watch.keita1992.link/](https://asset-watch.keita1992.link/)
+
+## Technology Stack
+
+Asset Watch leverages a modern tech stack including:
+
+- **Frontend**: Developed with Next.js for a seamless user experience.
+- **Infrastructure**: Hosted on AWS, utilizing services such as AWS Amplify, DynamoDB, API Gateway, and Lambda for robust and scalable performance.
+- **Containerization**: Supported by Docker, facilitating straightforward setup and development across various environments.
 
 ## Getting Started
 
-First, run the development server:
+Follow these instructions to set up a local development environment.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Prerequisites
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ensure you have the following installed:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Node.js
+- Docker
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### Installation
 
-## Learn More
+1. Clone the repository
 
-To learn more about Next.js, take a look at the following resources:
+   ```bash
+   git clone https://github.com/keita1992/asset_watch.git
+   cd asset-watch
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. Install dependencies
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+   ```bash
+   npm install
+   ```
 
-## Deploy on Vercel
+3. Run the application using Docker
+   Build and run the Docker container with:
+   ```bash
+   docker compose build
+   docker compose up -d
+   ```
+   Access the application at `http://localhost:3000`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Contributing
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+## Contact
+
+- Keita Iimori
+- Blog Link: [https://keita-blog.com/](https://keita-blog.com/)
