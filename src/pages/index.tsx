@@ -15,26 +15,6 @@ import { IndicatorPanel } from "@/features/dashboard/components/IndicatorPanel";
 import { axios } from "@/libs/axios";
 import { AssetGroupedByCurrency, AssetsData, AssetsGroupedByCategory, AssetsGroupedByCategoryResponse, AssetsGroupedByCurrencyResponse } from "@/store/asset/type";
 
-// type Props = {
-//   assetsGroupedByCategory: AssetsGroupedByCategory;
-//   assetsGroupedByCurrency: AssetGroupedByCurrency;
-//   assetsGroupedByCategoryWithoutEmergencyFund: AssetsGroupedByCategory;
-//   assetsGroupedByCurrencyWithoutEmergencyFund: AssetGroupedByCurrency;
-//   assets: AssetsData;
-//   assetsWithoutEmergencyFund: AssetsData;
-// };
-
-// // x-charts は SSR に対応していないため、CSR でのみ表示する
-// const CategoryPieChart = dynamic(
-//   () => import('@/features/dashboard/components/CategoryPieChart').then((mod) => mod.CategoryPieChart),
-//   { ssr: false }
-// );
-
-// const CurrencyPieChart = dynamic(
-//   () => import('@/features/dashboard/components/CurrencyPieChart').then((mod) => mod.CurrencyPieChart),
-//   { ssr: false }
-// );
-
 export const Dashboard = () => {
   const [checked, setChecked] = useState(true);
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -164,32 +144,6 @@ export const Dashboard = () => {
     </Grid >
   )
 }
-
-// export const getServerSideProps: GetServerSideProps = async () => {
-//   try {
-//     const assetsGroupedByCategory = await getAssetsGroupedByCategory();
-//     const assetsGroupedByCategoryWithoutEmergencyFund = await getAssetsGroupedByCategoryWithoutEmergencyFund();
-//     const assetsGroupedByCurrency = await getAssetsGroupedByCurrency();
-//     const assetsGroupedByCurrencyWithoutEmergencyFund = await getAssetsGroupedByCurrencyWithoutEmergencyFund();
-//     const assets = await getAssets();
-//     const assetsWithoutEmergencyFund = await getAssetsWithoutEmergencyFund();
-
-//     return {
-//       props: {
-//         assetsGroupedByCategory,
-//         assetsGroupedByCurrency,
-//         assetsGroupedByCategoryWithoutEmergencyFund,
-//         assetsGroupedByCurrencyWithoutEmergencyFund,
-//         assets,
-//         assetsWithoutEmergencyFund
-//       }
-//     }
-//   } catch (e) {
-//     return {
-//       props: { assetsGroupedByCategories: [] }
-//     }
-//   }
-// }
 
 // カテゴリごとの資産
 const getAssetsGroupedByCategory = async () => {
