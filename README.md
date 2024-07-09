@@ -54,6 +54,12 @@ Ensure you have the following installed:
    ```
    Access the application at `http://localhost:3000`.
 
+## dev
+
+```bash
+docker compose exec nodejs bash -c "npm run dev"
+```
+
 ## Contributing
 
 Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
