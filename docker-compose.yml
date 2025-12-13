@@ -1,13 +1,8 @@
 services:
-  nodejs:
-    container_name: nodejs
+  app:
     build:
-      context: ./nodejs
-      dockerfile: Dockerfile
-      args:
-        - USER_ID=${USER_ID}
-        - GROUP_ID=${GROUP_ID}
-        - APP_NAME=asset_watch
+      context: .
+      dockerfile: ./nodejs/Dockerfile
     tty: true
     volumes:
       - ./:/app

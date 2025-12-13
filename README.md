@@ -43,21 +43,20 @@ Ensure you have the following installed:
 2. Install dependencies
 
    ```bash
-   npm install
+   docker compose run --rm app yarn --frozen-lockfile
    ```
 
 3. Run the application using Docker
    Build and run the Docker container with:
    ```bash
-   docker compose build
-   docker compose up -d
+   docker compose up -d --build
    ```
    Access the application at `http://localhost:3000`.
 
 ## dev
 
 ```bash
-docker compose exec nodejs bash -c "npm run dev"
+docker compose exec app yarn dev
 ```
 
 ## Contributing
