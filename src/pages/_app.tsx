@@ -1,26 +1,34 @@
 // pages/_app.tsx
-import { ThemeProvider } from '@mui/material';
+import { CssBaseline, ThemeProvider, useMediaQuery } from '@mui/material';
 import { AppProps } from 'next/app';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 
 import Layout from '@/components/layouts';
 
-
-import { theme } from '@/libs/theme';
+import { createAppTheme } from '@/libs/theme';
 import { store } from '@/store';
 
-const App: React.FC<AppProps> = ({ Component, pageProps }) => (
-  <>
-    <title>Asset Watch</title>
-    <ThemeProvider theme={theme}>
-      <ReduxProvider store={store}>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
-      </ReduxProvider>
-    </ThemeProvider>
-  </>
-);
+import '@/styles/tokens.css';
+import '@/styles/components.css';
+
+const App: React.FC<AppProps> = ({ Component, pageProps }) => {
+  const prefersDark = useMediaQuery('(prefers-color-scheme: dark)');
+  const theme = useMemo(() => createAppTheme(prefersDark ? 'dark' : 'light'), [prefersDark]);
+
+  return (
+    <>
+      <title>Asset Watch</title>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <ReduxProvider store={store}>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </ReduxProvider>
+      </ThemeProvider>
+    </>
+  );
+};
 
 export default App;

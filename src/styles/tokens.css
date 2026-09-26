@@ -1,0 +1,35 @@
+/* Asset Watch デザインシステムのトークン（Claude Design「Asset Watch」tokens.json v3 と同じ値） */
+:root {
+  --canvas: #eef1f1; --surface: #ffffff; --surface-sunken: #f5f7f7;
+  --line: #dde3e4; --line-strong: #7d8b91;
+  --ink: #111a1e; --ink-2: #4a5a61; --ink-3: #5f6f76; --on-ink: #ffffff;
+  --accent: #0b6e6b; --accent-soft: #dff0ee; --liability: #b3431a;
+  --cat-1: #cd7769; --cat-2: #4273b0; --cat-3: #8a9c4a; --cat-4: #9e5580; --cat-5: #19a4b7;
+  --cat-6: #976712; --cat-7: #9d82cc; --cat-8: #158561; --cat-other: #9aa3a7;
+  --on-cat-light: #111a1e; --on-cat-dark: #ffffff; --on-cat-other: #111a1e;
+  --fx-jpy: #d3dadd; --fx-usd: #26333a; --fx-eur: #56656c; --fx-other: #8a979d;
+  --shadow-pop: 0 4px 16px rgba(17, 26, 30, 0.14), 0 0 0 1px rgba(17, 26, 30, 0.08);
+
+  --class-jp-equity: var(--cat-1); --class-us-equity: var(--cat-2); --class-cn-equity: var(--cat-3);
+  --class-in-equity: var(--cat-4); --class-bond: var(--cat-5); --class-fund: var(--cat-6);
+  --class-commodity: var(--cat-7); --class-cash: var(--cat-8); --class-other: var(--cat-other);
+
+  --font-sans: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", YuGothic, "Noto Sans JP", sans-serif;
+  --space-1: 4px; --space-2: 8px; --space-4: 16px; --space-5: 24px; --space-6: 32px;
+  --radius-xs: 2px; --radius-sm: 4px; --radius-md: 6px; --radius-full: 999px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --canvas: #0d1215; --surface: #161d21; --surface-sunken: #11171a;
+    --line: #263036; --line-strong: #5f6e76;
+    --ink: #e8eef0; --ink-2: #a9b7bd; --ink-3: #8a9aa3; --on-ink: #0d1215;
+    --accent: #3fb8b0; --accent-soft: #123331; --liability: #f08a5d;
+    --cat-2: #4576b4; --cat-4: #a15883; --cat-6: #9a6a17; --cat-other: #6b777d;
+    --on-cat-other: #ffffff;
+    --fx-jpy: #34414a; --fx-usd: #e3e9eb; --fx-eur: #aebcc2; --fx-other: #7c8b92;
+    --shadow-pop: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(232, 238, 240, 0.1);
+    color-scheme: dark;
+  }
+}

@@ -1,0 +1,65 @@
+/* Asset Watch デザインシステムのコンポーネント（Claude Design「Asset Watch」components/bundle.css v3 を移植） */
+body { background: var(--canvas); color: var(--ink); font-family: var(--font-sans); }
+
+.aw-caption { font-size: 11px; line-height: 16px; color: var(--ink-3); }
+.aw-num { font-variant-numeric: tabular-nums; }
+
+/* Panel */
+.aw-panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; font-size: 13px; line-height: 20px; font-variant-numeric: tabular-nums; }
+.aw-panel__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); }
+.aw-panel__title { margin: 0; font-size: 14px; line-height: 20px; font-weight: 600; }
+.aw-panel__total { font-size: 22px; line-height: 28px; font-weight: 600; }
+.aw-empty { font-size: 12px; line-height: 16px; color: var(--ink-3); }
+
+/* Legend */
+.aw-legend { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); margin: 0; padding: 0; list-style: none; }
+.aw-legend li { display: inline-flex; align-items: center; gap: var(--space-1); font-size: 12px; line-height: 16px; color: var(--ink-2); white-space: nowrap; }
+.aw-legend b { font-weight: 500; color: var(--ink); }
+.aw-dot { width: 10px; height: 10px; border-radius: var(--radius-full); flex: none; }
+
+/* AllocationBar */
+.aw-alloc { display: flex; gap: 2px; height: 56px; }
+.aw-alloc__seg { min-width: 2px; display: flex; flex-direction: column; justify-content: center; padding: 0 6px; overflow: hidden; white-space: nowrap; font-size: 11px; line-height: 14px; font-weight: 600; }
+.aw-alloc__seg:first-child { border-radius: var(--radius-xs) 0 0 var(--radius-xs); }
+.aw-alloc__seg:last-child { border-radius: 0 var(--radius-xs) var(--radius-xs) 0; }
+
+/* BarList */
+.aw-bars { display: grid; grid-template-columns: minmax(0, 200px) minmax(0, 1fr) 64px 48px; gap: 6px var(--space-2); align-items: center; }
+.aw-bars--short { grid-template-columns: 40px minmax(0, 1fr) 56px 48px; }
+.aw-bars__name { font-size: 12px; line-height: 16px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.aw-bars__track { height: 14px; display: flex; gap: 2px; }
+.aw-bars__bar { height: 100%; }
+.aw-bars__bar:last-child { border-radius: 0 var(--radius-xs) var(--radius-xs) 0; }
+.aw-bars__val { text-align: right; font-size: 12px; line-height: 16px; }
+.aw-bars__pct { text-align: right; font-size: 12px; line-height: 16px; color: var(--ink-3); }
+
+/* Waterfall */
+.aw-wf { display: grid; grid-template-columns: 56px minmax(0, 1fr) 72px; gap: 10px var(--space-2); align-items: center; }
+.aw-wf__name { font-size: 12px; line-height: 16px; color: var(--ink-2); }
+.aw-wf__track { position: relative; height: 28px; }
+.aw-wf__bar { position: absolute; top: 0; bottom: 0; display: flex; gap: 2px; }
+.aw-wf__bar > div { height: 100%; }
+.aw-wf__val { text-align: right; font-size: 12px; line-height: 16px; font-weight: 600; }
+
+/* 生活防衛資金などの斜線 */
+.aw-hatch { background-image: repeating-linear-gradient(135deg, transparent 0 4px, rgba(255, 255, 255, 0.5) 4px 6px); }
+.aw-shortfall { box-shadow: inset 0 0 0 1px var(--liability); background: transparent; }
+
+/* SegmentedControl */
+.aw-seg { display: inline-flex; padding: 2px; gap: 2px; background: var(--surface-sunken); border: 1px solid var(--line); border-radius: var(--radius-sm); }
+.aw-seg button { font: inherit; font-size: 12px; line-height: 16px; font-weight: 500; color: var(--ink-2); background: transparent; border: 0; border-radius: 3px; padding: 6px 12px; cursor: pointer; }
+.aw-seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); font-weight: 600; box-shadow: 0 0 0 1px var(--line-strong); }
+.aw-seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Dashboard grid */
+.aw-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--space-5); }
+.aw-span-5 { grid-column: span 5; }
+.aw-span-7 { grid-column: span 7; }
+.aw-span-12 { grid-column: span 12; }
+@media (max-width: 1100px) {
+  .aw-span-5, .aw-span-7 { grid-column: span 12; }
+}
+@media (max-width: 600px) {
+  .aw-grid { gap: var(--space-4); }
+  .aw-bars { grid-template-columns: minmax(0, 120px) minmax(0, 1fr) 56px 44px; }
+}

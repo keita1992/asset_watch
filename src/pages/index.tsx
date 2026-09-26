@@ -1,196 +1,120 @@
+import { useEffect, useMemo, useState } from "react";
 
-import { FormControlLabel, Grid, Switch } from "@mui/material";
-import { useEffect, useState } from "react";
-
-import { Panel } from "@/components/elements/Panel";
-
-import { AllAssetsPieChart } from "@/features/dashboard/components/AllAssetsPieChart";
-import { AssetBarChart } from "@/features/dashboard/components/AssetBarChart";
-import { CategoryDetailPieChart } from "@/features/dashboard/components/CategoryDetailPieChart";
-import { CategoryPieChart } from "@/features/dashboard/components/CategoryPieChart";
-import { CurrencyDetailPieChart } from "@/features/dashboard/components/CurrencyDetailPieChart";
-import { CurrencyPieChart } from "@/features/dashboard/components/CurrencyPieChart";
-import { IndicatorPanel } from "@/features/dashboard/components/IndicatorPanel";
+import { AllocationBar } from "@/features/dashboard/components/AllocationBar";
+import { BarList } from "@/features/dashboard/components/BarList";
+import { CashBar } from "@/features/dashboard/components/CashBar";
+import { Panel } from "@/features/dashboard/components/Panel";
+import { SegmentedControl } from "@/features/dashboard/components/SegmentedControl";
+import { Waterfall } from "@/features/dashboard/components/Waterfall";
+import {
+  applyBase,
+  Base,
+  byCurrency,
+  cashSummary,
+  categoryColor,
+  formatPct,
+  formatYen,
+  Holding,
+  sum,
+  toHoldings,
+} from "@/features/dashboard/portfolio";
 
 import { axios } from "@/libs/axios";
-import { AssetGroupedByCurrency, AssetsData, AssetsGroupedByCategory, AssetsGroupedByCategoryResponse, AssetsGroupedByCurrencyResponse } from "@/store/asset/type";
+import { AssetsDataResponse } from "@/store/asset/type";
+import { User } from "@/store/user/type";
+import { USER_ID } from "@/utils/constants";
+
+const BASE_OPTIONS: { value: Base; label: string }[] = [
+  { value: "total", label: "総資産" },
+  { value: "invest", label: "投資資産" },
+];
 
 export const Dashboard = () => {
-  const [checked, setChecked] = useState(true);
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setChecked(event.target.checked);
-  };
-
-  const [assetsGroupedByCategory, setAssetsGroupedByCategory] = useState<AssetsGroupedByCategory>([]);
-  const [assetsGroupedByCurrency, setAssetsGroupedByCurrency] = useState<AssetGroupedByCurrency>([]);
-  const [assetsGroupedByCategoryWithoutEmergencyFund, setAssetsGroupedByCategoryWithoutEmergencyFund] = useState<AssetsGroupedByCategory>([]);
-  const [assetsGroupedByCurrencyWithoutEmergencyFund, setAssetsGroupedByCurrencyWithoutEmergencyFund] = useState<AssetGroupedByCurrency>([]);
-  const [assets, setAssets] = useState<AssetsData>([]);
-  const [assetsWithoutEmergencyFund, setAssetsWithoutEmergencyFund] = useState<AssetsData>([]);
-
-  const [canRender, setCanRender] = useState(false);
+  const [holdings, setHoldings] = useState<Holding[] | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [error, setError] = useState(false);
+  const [base, setBase] = useState<Base>("total");
 
   useEffect(() => {
     const fetchData = async () => {
-      const assetsGroupedByCategory = await getAssetsGroupedByCategory();
-      const assetsGroupedByCategoryWithoutEmergencyFund = await getAssetsGroupedByCategoryWithoutEmergencyFund();
-      const assetsGroupedByCurrency = await getAssetsGroupedByCurrency();
-      const assetsGroupedByCurrencyWithoutEmergencyFund = await getAssetsGroupedByCurrencyWithoutEmergencyFund();
-      const assets = await getAssets();
-      const assetsWithoutEmergencyFund = await getAssetsWithoutEmergencyFund();
-
-      setAssetsGroupedByCategory(assetsGroupedByCategory);
-      setAssetsGroupedByCurrency(assetsGroupedByCurrency);
-      setAssetsGroupedByCategoryWithoutEmergencyFund(assetsGroupedByCategoryWithoutEmergencyFund);
-      setAssetsGroupedByCurrencyWithoutEmergencyFund(assetsGroupedByCurrencyWithoutEmergencyFund);
-      setAssets(assets);
-      setAssetsWithoutEmergencyFund(assetsWithoutEmergencyFund);
-      setCanRender(true);
-    }
+      try {
+        const [assetsRes, userRes] = await Promise.all([
+          axios.get<AssetsDataResponse>("/api/assets/all"),
+          axios.get<User>(`/api/users/${USER_ID}`),
+        ]);
+        setUser(userRes.data);
+        setHoldings(toHoldings(assetsRes.data.assets ?? [], userRes.data));
+      } catch (e) {
+        console.error(e);
+        setError(true);
+      }
+    };
     fetchData();
-  }, [])
+  }, []);
+
+  const view = useMemo(() => {
+    if (!holdings || !user) return null;
+    const scoped = applyBase(holdings, base, user.emergencyFund);
+    const scopedTotal = sum(scoped);
+    const currencies = byCurrency(scoped);
+    const foreign = currencies.filter((c) => c.name !== "JPY").reduce((s, c) => s + c.value, 0);
+    const cash = cashSummary(holdings, user.emergencyFund);
+    return {
+      total: sum(holdings),
+      net: sum(holdings) - user.liabilities,
+      cashTotal: cash.jpy + cash.foreign,
+      scoped,
+      scopedTotal,
+      foreign,
+      bars: [...scoped]
+        .filter((h) => h.value > 0)
+        .sort((a, b) => b.value - a.value)
+        .map((h) => ({
+          key: `${h.name}-${h.category}-${h.currency}`,
+          name: h.name,
+          value: h.value,
+          color: categoryColor(h.category),
+          tooltip: `${h.name}（${h.category}・${h.currency}） ${formatYen(h.value)}`,
+        })),
+      currencies: currencies.map((c) => ({ key: c.name, name: c.name, value: c.value, color: c.color, tooltip: `${c.name} ${formatYen(c.value)}` })),
+    };
+  }, [holdings, user, base]);
 
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={12}>
-        <FormControlLabel
-          control={<Switch defaultChecked onChange={handleChange} />}
-          label="生活防衛資金を除く"
-        />
-      </Grid>
-      {(checked && canRender) && (
-        <>
-          <Grid item xs={12} lg={5}>
-            <Panel title="重要指標" paperProps={{ textAlign: 'center' }} boxProps={{ justifyContent: 'center' }} >
-              <IndicatorPanel data={assetsWithoutEmergencyFund} />
-            </Panel>
-          </Grid>
-          <Grid item xs={12} lg={7} >
-            <Panel title="資産額" paperProps={{ textAlign: 'center' }}>
-              <AssetBarChart data={assetsWithoutEmergencyFund} />
-            </Panel>
-          </Grid>
-          <Grid item xs={12} md={6} lg={4}>
-            <Panel title="全資産" paperProps={{ textAlign: 'center' }}>
-              <AllAssetsPieChart data={assetsWithoutEmergencyFund} />
-            </Panel>
-          </Grid>
-          <Grid item xs={12} md={6} lg={4}>
-            <Panel title="資産クラス" paperProps={{ textAlign: 'center' }}>
-              <CategoryPieChart data={assetsGroupedByCategoryWithoutEmergencyFund} />
-            </Panel>
-          </Grid>
-          <Grid item xs={12} md={6} lg={4}>
-            <Panel title="通貨" paperProps={{ textAlign: 'center' }}>
-              <CurrencyPieChart data={assetsGroupedByCurrencyWithoutEmergencyFund} />
-            </Panel>
-          </Grid>
-          <Grid item xs={12} md={6} lg={5}>
-            <Panel title="資産クラス別内訳" paperProps={{ textAlign: 'center' }}>
-              <CategoryDetailPieChart data={assetsWithoutEmergencyFund} />
-            </Panel>
-          </Grid>
-          <Grid item xs={12} md={6} lg={5}>
-            <Panel title="通貨別内訳" paperProps={{ textAlign: 'center' }}>
-              <CurrencyDetailPieChart data={assetsWithoutEmergencyFund} />
-            </Panel>
-          </Grid>
-        </>
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+        <h1 style={{ margin: 0, fontSize: 18, lineHeight: "26px", fontWeight: 600 }}>ダッシュボード</h1>
+        <SegmentedControl label="構成比の分母" options={BASE_OPTIONS} value={base} onChange={setBase} />
+      </div>
+
+      {error && <p className="aw-empty">データを読み込めませんでした。</p>}
+      {!error && !view && <p className="aw-empty">読み込み中…</p>}
+
+      {view && user && (
+        <div className="aw-grid">
+          <Panel title="資産・負債" total={formatYen(view.net)} className="aw-span-7">
+            <Waterfall holdings={holdings!} liabilities={user.liabilities} />
+          </Panel>
+
+          <Panel title="現金" total={formatPct(view.cashTotal, view.total)} className="aw-span-5">
+            <CashBar holdings={holdings!} emergencyFund={user.emergencyFund} total={view.total} />
+          </Panel>
+
+          <Panel title="資産配分" total={formatYen(view.scopedTotal)} className="aw-span-12">
+            <AllocationBar holdings={view.scoped} />
+          </Panel>
+
+          <Panel title="銘柄" className="aw-span-7">
+            <BarList items={view.bars} total={view.scopedTotal} />
+          </Panel>
+
+          <Panel title="登録通貨" total={formatPct(view.foreign, view.scopedTotal)} className="aw-span-5">
+            <BarList items={view.currencies} total={view.scopedTotal} short outlined />
+          </Panel>
+        </div>
       )}
-      {(!checked && canRender) && (
-        <>
-          <Grid item xs={12} lg={5}>
-            <Panel title="重要指標" paperProps={{ textAlign: 'center' }} boxProps={{ justifyContent: 'center' }} >
-              <IndicatorPanel data={assets} />
-            </Panel>
-          </Grid>
-          <Grid item xs={12} lg={7} >
-            <Panel title="資産額" paperProps={{ textAlign: 'center' }}>
-              <AssetBarChart data={assets} />
-            </Panel>
-          </Grid>
-          <Grid item xs={12} md={6} lg={4}>
-            <Panel title="全資産" paperProps={{ textAlign: 'center' }}>
-              <AllAssetsPieChart data={assets} />
-            </Panel>
-          </Grid>
-          <Grid item xs={12} md={6} lg={4}>
-            <Panel title="資産クラス" paperProps={{ textAlign: 'center' }}>
-              <CategoryPieChart data={assetsGroupedByCategory} />
-            </Panel>
-          </Grid>
-          <Grid item xs={12} md={6} lg={4}>
-            <Panel title="通貨" paperProps={{ textAlign: 'center' }}>
-              <CurrencyPieChart data={assetsGroupedByCurrency} />
-            </Panel>
-          </Grid>
-          <Grid item xs={12} md={6} lg={5}>
-            <Panel title="資産クラス別内訳" paperProps={{ textAlign: 'center' }}>
-              <CategoryDetailPieChart data={assets} />
-            </Panel>
-          </Grid>
-          <Grid item xs={12} md={6} lg={5}>
-            <Panel title="通貨別内訳" paperProps={{ textAlign: 'center' }}>
-              <CurrencyDetailPieChart data={assets} />
-            </Panel>
-          </Grid>
-        </>
-      )}
-      {!canRender && (
-        <Grid item>
-          データを読み込んでいます...
-        </Grid>
-      )}
-    </Grid >
-  )
-}
-
-// カテゴリごとの資産
-const getAssetsGroupedByCategory = async () => {
-  const res = await axios.get<AssetsGroupedByCategoryResponse>('/api/assets/grouped-by-category');
-  return res.data.assets;
-}
-
-// 通貨ごとの資産
-const getAssetsGroupedByCurrency = async () => {
-  const res = await axios.get<AssetsGroupedByCurrencyResponse>('/api/assets/grouped-by-currency');
-  return res.data.assets;
-}
-
-// 資産
-const getAssets = async () => {
-  const res = await axios.get('/api/assets/all');
-  return res.data.assets;
-}
-
-// カテゴリごとの資産（緊急時資金を除く）
-const getAssetsGroupedByCategoryWithoutEmergencyFund = async () => {
-  const res = await axios.get<AssetsGroupedByCategoryResponse>('/api/assets/grouped-by-category', {
-    params: {
-      excludeEmergencyFund: true
-    }
-  });
-  return res.data.assets;
-}
-
-// 通貨ごとの資産（緊急時資金を除く）
-const getAssetsGroupedByCurrencyWithoutEmergencyFund = async () => {
-  const res = await axios.get<AssetsGroupedByCurrencyResponse>('/api/assets/grouped-by-currency', {
-    params: {
-      excludeEmergencyFund: true
-    }
-  });
-  return res.data.assets;
-}
-
-const getAssetsWithoutEmergencyFund = async () => {
-  const res = await axios.get('/api/assets/all', {
-    params: {
-      excludeEmergencyFund: true
-    }
-  });
-  return res.data.assets;
-}
-
+    </div>
+  );
+};
 
 export default Dashboard;

@@ -17,12 +17,12 @@ import { formatCurrency } from '@/utils/formatter';
 
 const StyledContainer = styled('div')(() => ({
   height: '80vh',
-  width: '90%',
+  width: '100%',
 }));
 
 const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
   '&.MuiDataGrid-root .MuiDataGrid-cell': {
-    fontSize: '1.0rem',
+    fontSize: 13,
   },
   '&.MuiDataGrid-root .MuiDataGrid-cell:focus': {
     outline: 'none',
@@ -31,7 +31,9 @@ const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
     outline: 'none',
   },
   '.MuiDataGrid-columnHeaders': {
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: 'var(--surface-sunken)',
+    color: theme.palette.text.secondary,
+    fontSize: 12,
   },
 }));
 

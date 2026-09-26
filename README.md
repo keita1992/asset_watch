@@ -22,48 +22,34 @@ Asset Watch leverages a modern tech stack including:
 
 ## Getting Started
 
-Follow these instructions to set up a local development environment.
-
 ### Prerequisites
 
-Ensure you have the following installed:
+- Docker（Docker Desktop など）
 
-- Node.js
-- Docker
-
-### Installation
-
-1. Clone the repository
-
-   ```bash
-   git clone https://github.com/keita1992/asset_watch.git
-   cd asset-watch
-   ```
-
-2. Install dependencies
-
-   ```bash
-   docker compose run --rm app yarn --frozen-lockfile
-   ```
-
-3. Run the application using Docker
-   Build and run the Docker container with:
-   ```bash
-   docker compose up -d --build
-   ```
-   Access the application at `http://localhost:3000`.
-
-## dev
+### ローカルで起動する（サンプルデータ）
 
 ```bash
-docker compose exec app yarn dev
+git clone https://github.com/keita1992/asset_watch.git
+cd asset_watch
+docker compose up --build
 ```
 
-## Contributing
+初回は依存パッケージのインストールに数分かかります。ログに `Ready` と出たら http://localhost:3000 を開いてください。
 
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+- 既定では `USE_MOCK_DATA=true` で起動し、AWS に接続せずメモリ上のサンプルデータを使います（`src/libs/mockClient.ts`）。追加・編集・削除も動きますが、コンテナを再起動すると初期データに戻ります。
+- 停止は `Ctrl+C`、片付けは `docker compose down`。
 
-## Contact
+### 実データ（AWS）で起動する
 
-- Keita Iimori
-- Blog Link: [https://keita-blog.com/](https://keita-blog.com/)
+`amplify pull` などで `src/aws-exports.js` を用意し、モックを無効にして起動します。
+
+```bash
+USE_MOCK_DATA=false docker compose up --build
+```
+
+### Docker を使わない場合
+
+```bash
+yarn install --frozen-lockfile
+USE_MOCK_DATA=true yarn dev
+```

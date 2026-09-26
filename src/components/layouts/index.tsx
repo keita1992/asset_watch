@@ -1,82 +1,15 @@
-import { BarChart, Person, Settings } from '@mui/icons-material';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import MenuIcon from '@mui/icons-material/Menu';
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
+import { DashboardOutlined, PersonOutline, TableChartOutlined } from '@mui/icons-material';
 import Box from '@mui/material/Box';
-import CssBaseline from '@mui/material/CssBaseline';
-import Divider from '@mui/material/Divider';
-import Drawer from '@mui/material/Drawer';
-import IconButton from '@mui/material/IconButton';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import { styled, useTheme } from '@mui/material/styles';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React from 'react';
 
 import { Snackbar } from '../elements/Snackbar';
 
-const drawerWidth = 240;
-
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
-  open?: boolean;
-}>(({ theme, open }) => ({
-  flexGrow: 1,
-  padding: theme.spacing(3),
-  transition: theme.transitions.create('margin', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  marginLeft: `-${drawerWidth}px`,
-  ...(open && {
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginLeft: 0,
-  }),
-}));
-
-interface AppBarProps extends MuiAppBarProps {
-  open?: boolean;
-}
-
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
-})<AppBarProps>(({ theme, open }) => ({
-  transition: theme.transitions.create(['margin', 'width'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: `${drawerWidth}px`,
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
-
-const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
-  ...theme.mixins.toolbar,
-  justifyContent: 'flex-end',
-}));
-
 const menus = [
-  { href: '/', label: 'ダッシュボード', icon: <BarChart /> },
-  { href: '/manage', label: 'データ管理', icon: <Settings /> },
-  { href: '/profile', label: 'プロフィール', icon: <Person /> },
+  { href: '/', label: 'ダッシュボード', icon: <DashboardOutlined fontSize="small" /> },
+  { href: '/manage', label: 'データ管理', icon: <TableChartOutlined fontSize="small" /> },
+  { href: '/profile', label: 'プロフィール', icon: <PersonOutline fontSize="small" /> },
 ];
 
 type Props = {
@@ -84,82 +17,64 @@ type Props = {
 }
 
 export const Layout = ({ children }: Props) => {
-  const theme = useTheme();
   const router = useRouter();
-  const [open, setOpen] = useState(true);
-
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
 
   return (
-    <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-      <AppBar position="fixed" open={open}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{ mr: 2, ...(open && { display: 'none' }) }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            資産管理システム「Asset Watch」
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Drawer
+    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, minHeight: '100vh' }}>
+      <Box
+        component="nav"
+        aria-label="メインメニュー"
         sx={{
-          width: drawerWidth,
+          width: { md: 200 },
           flexShrink: 0,
-          '& .MuiDrawer-paper': {
-            width: drawerWidth,
-            boxSizing: 'border-box',
-          },
+          p: { xs: '12px 16px', md: '24px 12px' },
+          bgcolor: 'var(--surface)',
+          borderRight: { md: '1px solid var(--line)' },
+          borderBottom: { xs: '1px solid var(--line)', md: 0 },
+          display: 'flex',
+          flexDirection: { xs: 'row', md: 'column' },
+          alignItems: { xs: 'center', md: 'stretch' },
+          gap: '4px',
+          overflowX: 'auto',
         }}
-        variant="persistent"
-        anchor="left"
-        open={open}
       >
-        <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
-        <List>
-          {menus.map((menu, index) => (
-            <Link
-              key={index}
+        <Box sx={{ fontSize: 14, lineHeight: '20px', fontWeight: 600, px: '12px', pb: { md: '20px' }, whiteSpace: 'nowrap' }}>
+          Asset Watch
+        </Box>
+        {menus.map((menu) => {
+          const current = router.pathname === menu.href;
+          return (
+            <Box
+              key={menu.href}
+              component={Link}
               href={menu.href}
-              style={{
-                color: 'white',
-                textDecoration: 'none'
+              aria-current={current ? 'page' : undefined}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                height: 36,
+                px: '12px',
+                borderRadius: 'var(--radius-sm)',
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+                fontSize: 13,
+                fontWeight: current ? 600 : 500,
+                color: current ? 'var(--accent)' : 'var(--ink-2)',
+                bgcolor: current ? 'var(--accent-soft)' : 'transparent',
+                '&:hover': { bgcolor: current ? 'var(--accent-soft)' : 'var(--surface-sunken)', color: current ? 'var(--accent)' : 'var(--ink)' },
+                '&:focus-visible': { outline: '2px solid var(--accent)', outlineOffset: '2px' },
               }}
             >
-              <ListItem disablePadding>
-                <ListItemButton selected={router.pathname === menu.href}>
-                  <ListItemIcon>
-                    {menu.icon}
-                  </ListItemIcon>
-                  <ListItemText primary={menu.label} />
-                </ListItemButton>
-              </ListItem>
-            </Link>
-          ))}
-        </List>
-      </Drawer>
-      <Main open={open}>
-        <DrawerHeader />
+              {menu.icon}
+              {menu.label}
+            </Box>
+          );
+        })}
+      </Box>
+      <Box component="main" sx={{ flexGrow: 1, minWidth: 0, p: { xs: 2, md: 4 } }}>
         {children}
-      </Main>
+      </Box>
       <Snackbar />
     </Box>
   );
