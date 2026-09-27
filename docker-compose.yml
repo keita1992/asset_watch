@@ -6,12 +6,19 @@ services:
     tty: true
     volumes:
       - ./:/app
+      - node_modules:/app/node_modules
     environment:
       - WATCHPACK_POLLING=true
+      # true: AWS に接続せずサンプルデータで動かす。実データを使うときは false にし、src/aws-exports.js を用意する
+      - USE_MOCK_DATA=${USE_MOCK_DATA:-true}
+    command: sh -c "yarn install --frozen-lockfile && yarn dev"
     ports:
       - "3000:3000"
     networks:
       - app_net
+
+volumes:
+  node_modules:
 
 networks:
   app_net:

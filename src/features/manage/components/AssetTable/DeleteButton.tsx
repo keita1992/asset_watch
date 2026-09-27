@@ -24,7 +24,7 @@ export const DeleteButton = ({ id }: Props) => {
   }
 
   return (
-    <Button variant="outlined" color="error" onClick={handleClick} sx={{ my: 1 }}>
+    <Button variant="outlined" color="error" size="small" onClick={handleClick} sx={{ my: 1 }}>
       削除
     </Button>
   )

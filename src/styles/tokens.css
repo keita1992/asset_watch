@@ -1,0 +1,60 @@
+/* Asset Watch デザインシステムのトークン（Claude Design「Asset Watch」tokens.json v3 と同じ値） */
+:root {
+  --canvas: #eef1f1; --surface: #ffffff; --surface-sunken: #f5f7f7;
+  --line: #dde3e4; --line-strong: #7d8b91;
+  --ink: #111a1e; --ink-2: #4a5a61; --ink-3: #5f6f76; --on-ink: #ffffff;
+  --accent: #0b6e6b; --accent-soft: #dff0ee; --liability: #b3431a;
+  /* グラフの塗り。どの塗りの上でも文字は --on-chart（ライトは白、ダークは黒）で読める明るさにそろえる */
+  --cat-1: #af574b; --cat-2: #3569a8; --cat-3: #647a30; --cat-4: #995077; --cat-5: #087f91;
+  --cat-6: #8a6318; --cat-7: #7959ae; --cat-8: #147d64; --cat-other: #69777d;
+  --fx-jpy: #926c16; --fx-usd: #3569a8; --fx-eur: #7959ae; --fx-other: #69777d;
+  /* 銘柄は上位 5 件だけ色を当て、6 件目以降は 1 区画にまとめて --holding-rest */
+  --holding-1: #3569a8; --holding-2: #8a6318; --holding-3: #7959ae; --holding-4: #087f91; --holding-5: #995077;
+  --holding-rest: #69777d;
+  --on-chart: #ffffff;
+  --hatch: rgba(255, 255, 255, 0.55);
+  --shadow-pop: 0 4px 16px rgba(17, 26, 30, 0.14), 0 0 0 1px rgba(17, 26, 30, 0.08);
+
+  --class-jp-equity: var(--cat-1); --class-us-equity: var(--cat-2); --class-cn-equity: var(--cat-3);
+  --class-in-equity: var(--cat-4); --class-bond: var(--cat-5); --class-fund: var(--cat-6);
+  --class-commodity: var(--cat-7); --class-cash: var(--cat-8); --class-other: var(--cat-other);
+
+  --font-sans: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", YuGothic, "Noto Sans JP", sans-serif;
+  --space-1: 4px; --space-2: 8px; --space-4: 16px; --space-5: 24px; --space-6: 32px;
+  --radius-xs: 2px; --radius-sm: 4px; --radius-md: 6px; --radius-full: 999px;
+  color-scheme: light;
+}
+
+/* ダーク。OS がダークで画面側の指定がないとき、または画面でダークを選んだときに使う */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --canvas: #0d1215; --surface: #161d21; --surface-sunken: #11171a;
+    --line: #263036; --line-strong: #5f6e76;
+    --ink: #e8eef0; --ink-2: #a9b7bd; --ink-3: #8a9aa3; --on-ink: #0d1215;
+    --accent: #3fb8b0; --accent-soft: #123331; --liability: #f08a5d;
+    --cat-1: #e39688; --cat-2: #78aae2; --cat-3: #b2c979; --cat-4: #d895ba; --cat-5: #62bccb;
+    --cat-6: #d5b66b; --cat-7: #ba9ee3; --cat-8: #64be9e; --cat-other: #a2adb3;
+    --fx-jpy: #d8b45a; --fx-usd: #78aae2; --fx-eur: #ba9ee3; --fx-other: #a2adb3;
+    --holding-1: #78aae2; --holding-2: #d5b66b; --holding-3: #ba9ee3; --holding-4: #62bccb; --holding-5: #d895ba;
+    --holding-rest: #a2adb3;
+    --on-chart: #0d1215;
+    --hatch: rgba(13, 18, 21, 0.45);
+    --shadow-pop: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(232, 238, 240, 0.1);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --canvas: #0d1215; --surface: #161d21; --surface-sunken: #11171a;
+  --line: #263036; --line-strong: #5f6e76;
+  --ink: #e8eef0; --ink-2: #a9b7bd; --ink-3: #8a9aa3; --on-ink: #0d1215;
+  --accent: #3fb8b0; --accent-soft: #123331; --liability: #f08a5d;
+  --cat-1: #e39688; --cat-2: #78aae2; --cat-3: #b2c979; --cat-4: #d895ba; --cat-5: #62bccb;
+  --cat-6: #d5b66b; --cat-7: #ba9ee3; --cat-8: #64be9e; --cat-other: #a2adb3;
+  --fx-jpy: #d8b45a; --fx-usd: #78aae2; --fx-eur: #ba9ee3; --fx-other: #a2adb3;
+  --holding-1: #78aae2; --holding-2: #d5b66b; --holding-3: #ba9ee3; --holding-4: #62bccb; --holding-5: #d895ba;
+  --holding-rest: #a2adb3;
+  --on-chart: #0d1215;
+  --hatch: rgba(13, 18, 21, 0.45);
+  --shadow-pop: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(232, 238, 240, 0.1);
+  color-scheme: dark;
+}
