@@ -1,4 +1,6 @@
-import { byCategory, formatMan, Holding, sum } from "../portfolio";
+import { byCategory, formatMan, Holding, ON_CHART, sum } from "../portfolio";
+
+import { AllocationBar } from "./AllocationBar";
 
 type Props = {
   holdings: Holding[];
@@ -14,17 +16,16 @@ export const Waterfall = ({ holdings, liabilities }: Props) => {
   const categories = byCategory(holdings).filter((c) => c.value > 0);
 
   return (
-    <div className="aw-wf" role="img" aria-label="総資産から負債を引いて純資産">
+    <div className="aw-wf" role="group" aria-label="総資産から負債を引いて純資産">
       <span className="aw-wf__name">総資産</span>
       <div className="aw-wf__track">
         <div className="aw-wf__bar" style={{ left: 0, width: pct(total) }}>
-          {categories.map((c) => (
-            <div
-              key={c.name}
-              style={{ flex: `${c.value} 1 0`, background: c.color }}
-              title={`${c.name} ${formatMan(c.value)}円`}
-            />
-          ))}
+          <AllocationBar
+            label="総資産の内訳"
+            segments={categories.map((c) => ({ key: c.name, ...c }))}
+            total={total}
+            legend="none"
+          />
         </div>
       </div>
       <span className="aw-wf__val">{formatMan(total)}</span>
@@ -32,7 +33,12 @@ export const Waterfall = ({ holdings, liabilities }: Props) => {
       <span className="aw-wf__name">負債</span>
       <div className="aw-wf__track">
         <div className="aw-wf__bar" style={{ left: pct(net), width: pct(Math.min(liabilities, total)) }}>
-          <div style={{ width: "100%", background: "var(--liability)", borderRadius: 2 }} />
+          <AllocationBar
+            label="負債の詳細"
+            segments={[{ key: "liabilities", name: "負債", value: liabilities, color: "var(--liability)", onColor: ON_CHART }]}
+            total={total}
+            legend="none"
+          />
         </div>
       </div>
       <span className="aw-wf__val" style={{ color: "var(--liability)" }}>−{formatMan(liabilities)}</span>
@@ -40,7 +46,12 @@ export const Waterfall = ({ holdings, liabilities }: Props) => {
       <span className="aw-wf__name">純資産</span>
       <div className="aw-wf__track">
         <div className="aw-wf__bar" style={{ left: 0, width: pct(net) }}>
-          <div style={{ width: "100%", background: "var(--ink-3)", borderRadius: 2 }} />
+          <AllocationBar
+            label="純資産の詳細"
+            segments={[{ key: "net", name: "純資産", value: net, color: "var(--ink-3)", onColor: ON_CHART }]}
+            total={total}
+            legend="none"
+          />
         </div>
       </div>
       <span className="aw-wf__val">{formatMan(net)}</span>

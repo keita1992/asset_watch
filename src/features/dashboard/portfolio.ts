@@ -78,7 +78,7 @@ export const isCash = (h: Holding) => h.category === "現金";
 
 export type ColoredHolding = Holding & { color: string; onColor: string };
 
-// 色を当てる銘柄の数。6 件目以降は --holding-rest の 1 区画にまとめる（docs/design.md の「銘柄」）
+// 色を当てる上位銘柄の数。6 件目以降も区画は分け、色は --holding-rest を使う
 export const HOLDING_COLOR_COUNT = 5;
 
 // 評価額の大きい順に並べ、上位から --holding-1〜5 を当てる

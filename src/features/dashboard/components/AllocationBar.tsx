@@ -16,7 +16,7 @@ type Props = {
   segments: Segment[];
   // 構成比の分母
   total: number;
-  // false のときは区画に名前を書かず、構成比と金額だけにする
+  // false のときは区画に名前を書かず、構成比だけにする
   showName?: boolean;
   // small: 区画に名前を書けなかった項目だけ凡例に出す / all: すべて出す / none: 出さない
   legend?: "small" | "all" | "none";
@@ -84,7 +84,7 @@ export const AllocationBar = ({ label, segments, total, showName = true, legend 
           {legendRows.map((s) => (
             <li key={s.key}>
               <span className={`aw-dot${s.hatch ? " aw-hatch" : ""}`} style={fillStyle(s)} />
-              {s.name} <b>{formatPct(s.value, total)}</b> {formatMan(s.value)}
+              {s.name} <b>{formatPct(s.value, total)}</b>
             </li>
           ))}
         </ul>
@@ -120,8 +120,8 @@ const AllocationSegment = ({ segment: s, total, showName, active, onOpen, onTogg
   // 区画に書く文字。番号が大きいほど短い
   const label = (n: number) => {
     const steps: [string, string?][] = showName
-      ? [[`${s.name} ${pct}`, man], [s.name, pct], [s.name], [pct]]
-      : [[pct, man], [pct]];
+      ? [[`${s.name} ${pct}`], [s.name, pct], [s.name], [pct]]
+      : [[pct]];
     const step = steps[n];
     if (!step) return null;
     return (
@@ -131,7 +131,7 @@ const AllocationSegment = ({ segment: s, total, showName, active, onOpen, onTogg
       </>
     );
   };
-  const last = showName ? 4 : 2;
+  const last = showName ? 4 : 1;
 
   useLayoutEffect(() => {
     setLevel(0);
@@ -161,7 +161,7 @@ const AllocationSegment = ({ segment: s, total, showName, active, onOpen, onTogg
     <div
       ref={ref}
       className={`aw-alloc__seg${s.hatch ? " aw-hatch" : ""}`}
-      style={{ flex: `${s.value} 1 0`, color: s.onColor, ...fillStyle(s) }}
+      style={{ flex: `${s.value} 1 0`, color: s.onColor, paddingInline: showName ? undefined : 0, ...fillStyle(s) }}
       tabIndex={0}
       aria-label={`${s.name} ${man}円 ${pct}`}
       data-active={active || undefined}

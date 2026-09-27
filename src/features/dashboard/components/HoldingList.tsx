@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { formatMan } from "../portfolio";
 
 export type HoldingRow = {
@@ -5,22 +7,15 @@ export type HoldingRow = {
   name: string;
   value: number;
   color: string;
-  // 金融資産内の構成比
-  investPct: string;
   // キャッシュ込みの構成比
   totalPct: string;
 };
 
-// 銘柄を大きい順の横棒で並べ、構成比を 2 つの分母で示す。最大の項目がトラックいっぱいになる
+// 銘柄を大きい順の横棒で並べ、キャッシュ込みの構成比を示す。最大の項目がトラックいっぱいになる
 export const HoldingList = ({ rows }: { rows: HoldingRow[] }) => {
   const max = Math.max(...rows.map((r) => r.value), 1);
   return (
-    <div className="aw-bars aw-bars--dual">
-      <span />
-      <span className="aw-bars__head aw-bars__head--track" />
-      <span className="aw-bars__head aw-bars__head--track">評価額</span>
-      <span className="aw-bars__head">金融資産</span>
-      <span className="aw-bars__head">キャッシュ込み</span>
+    <div className="aw-holdings">
       {rows.map((r) => (
         <HoldingListRow key={r.key} row={r} max={max} />
       ))}
@@ -28,20 +23,33 @@ export const HoldingList = ({ rows }: { rows: HoldingRow[] }) => {
   );
 };
 
-const HoldingListRow = ({ row: r, max }: { row: HoldingRow; max: number }) => (
-  <>
-    <span className="aw-bars__name" title={r.name}>
-      <span className="aw-dot aw-bars__dot" style={{ background: r.color }} />
-      {r.name}
-    </span>
-    <div className="aw-bars__track">
-      <div className="aw-bars__bar" style={{ width: `${(r.value / max) * 100}%`, background: r.color }} />
-    </div>
-    <span className="aw-bars__val">{formatMan(r.value)}</span>
-    <span className="aw-bars__pct">{r.investPct}</span>
-    <span className="aw-bars__pct">{r.totalPct}</span>
-  </>
-);
+const HoldingListRow = ({ row: r, max }: { row: HoldingRow; max: number }) => {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <button
+      type="button"
+      className="aw-holding"
+      aria-label={`${r.name} ${r.totalPct}、金額を表示`}
+      aria-expanded={expanded}
+      onClick={() => setExpanded((value) => !value)}
+      onBlur={() => setExpanded(false)}
+      onKeyDown={(e) => e.key === "Escape" && setExpanded(false)}
+    >
+      <span className="aw-bars__name">
+        <span className="aw-dot aw-bars__dot" style={{ background: r.color }} />
+        {r.name}
+      </span>
+      <span className="aw-bars__track">
+        <span className="aw-bars__bar" style={{ width: `${(r.value / max) * 100}%`, background: r.color }} />
+      </span>
+      <span className="aw-bars__pct">{r.totalPct}</span>
+      <span className="aw-tip aw-holding__detail">
+        <span className="aw-tip__name">{r.name}</span>
+        <span className="aw-tip__row">{formatMan(r.value)}円</span>
+      </span>
+    </button>
+  );
+};
 
 type Stat = { label: string; value: string };
 

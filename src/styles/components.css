@@ -78,10 +78,18 @@ body { background: var(--canvas); color: var(--ink); font-family: var(--font-san
 .aw-stat__label { font-size: 11px; line-height: 16px; color: var(--ink-3); }
 .aw-stat__value { font-size: 18px; line-height: 24px; font-weight: 600; }
 
-/* BarList に構成比を 2 列持たせる（金融資産内・キャッシュ込み） */
-.aw-bars--dual { grid-template-columns: minmax(0, 200px) minmax(0, 1fr) 64px 56px 72px; }
+/* 銘柄一覧は割合を常時表示し、金額は操作時だけ表示する */
+.aw-holdings { display: flex; flex-direction: column; gap: 6px; }
+.aw-holding { position: relative; display: grid; grid-template-columns: minmax(0, 200px) minmax(0, 1fr) 56px; gap: var(--space-2); align-items: center; width: 100%; min-height: 28px; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.aw-holding:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .aw-bars__dot { display: none; }
-.aw-bars__head { font-size: 11px; line-height: 16px; color: var(--ink-3); text-align: right; white-space: nowrap; }
+.aw-holding .aw-holding__detail { display: none; left: 0; transform: none; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+.aw-holding__detail > span { display: block; }
+.aw-holding[aria-expanded="true"] .aw-holding__detail,
+.aw-holding:focus-visible .aw-holding__detail { display: block; }
+@media (hover: hover) {
+  .aw-holding:hover .aw-holding__detail { display: block; }
+}
 
 /* アプリの枠。900px 以上は左メニュー、600〜899px は上メニュー、600px 未満は下タブ */
 .aw-shell { display: flex; min-height: 100vh; }
@@ -96,6 +104,9 @@ body { background: var(--canvas); color: var(--ink); font-family: var(--font-san
 button.aw-nav__item { border: 0; background: transparent; font-family: inherit; cursor: pointer; text-align: left; }
 .aw-nav__spacer { flex: 1; }
 .aw-main { flex: 1; min-width: 0; padding: var(--space-6); }
+@media (min-width: 900px) {
+  .aw-nav { position: sticky; top: 0; height: 100dvh; box-sizing: border-box; align-self: flex-start; overflow-y: auto; }
+}
 @media (max-width: 899px) {
   .aw-shell { flex-direction: column; }
   .aw-nav { width: auto; flex-direction: row; align-items: center; padding: 12px var(--space-4); border-right: 0; border-bottom: 1px solid var(--line); }
@@ -110,9 +121,9 @@ button.aw-nav__item { border: 0; background: transparent; font-family: inherit; 
   .aw-main { padding: var(--space-4) var(--space-4) 88px; }
   .aw-alloc-rows { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); }
   .aw-alloc-rows__label:not(:first-child) { margin-top: var(--space-2); }
-  .aw-bars--dual { grid-template-columns: minmax(0, 1fr) 56px 72px; }
-  .aw-bars--dual .aw-bars__track, .aw-bars--dual .aw-bars__val, .aw-bars--dual .aw-bars__head--track { display: none; }
-  .aw-bars--dual .aw-bars__dot { display: inline-block; margin-right: 6px; vertical-align: -1px; }
+  .aw-holding { grid-template-columns: minmax(0, 1fr) 56px; min-height: 36px; }
+  .aw-holding .aw-bars__track { display: none; }
+  .aw-holding .aw-bars__dot { display: inline-block; margin-right: 6px; vertical-align: -1px; }
 }
 
 /* 横棒の区画の詳細（ホバー・タップ・フォーカスで出す） */
@@ -123,3 +134,7 @@ button.aw-nav__item { border: 0; background: transparent; font-family: inherit; 
 .aw-tip { position: absolute; bottom: calc(100% + 6px); transform: translateX(-50%); z-index: 5; pointer-events: none; padding: 6px 10px; border-radius: var(--radius-sm); background: var(--surface); color: var(--ink); box-shadow: var(--shadow-pop); font-size: 12px; line-height: 16px; white-space: nowrap; }
 .aw-tip__name { font-weight: 600; }
 .aw-tip__row { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+/* 資産・負債も共通のラベルと詳細表示を使う */
+.aw-wf__bar > .aw-alloc { width: 100%; }
+.aw-wf__bar .aw-tip { left: auto !important; right: 0; transform: none; }

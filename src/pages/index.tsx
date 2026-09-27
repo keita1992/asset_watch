@@ -10,11 +10,9 @@ import {
   Base,
   byCategory,
   byCurrency,
-  cashSummary,
   formatPct,
   formatYen,
   Holding,
-  HOLDING_COLOR_COUNT,
   isCash,
   ON_CHART,
   sum,
@@ -36,7 +34,7 @@ export const Dashboard = () => {
   const [holdings, setHoldings] = useState<Holding[] | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState(false);
-  const [base, setBase] = useState<Base>("total");
+  const [base, setBase] = useState<Base>("invest");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,17 +61,16 @@ export const Dashboard = () => {
     const invest = withHoldingColors(scoped.filter((h) => !isCash(h) && h.value > 0));
     const investTotal = sum(invest);
 
-    // 総資産を分母にするときだけ、円現金のうち生活防衛資金の分を分けて示す
-    const reserved = base === "total" ? Math.min(cashSummary(holdings, user.emergencyFund).jpy, user.emergencyFund) : 0;
     const cashSegments: Segment[] = [
-      { key: "reserved", name: "キャッシュ（生活防衛）", value: reserved, color: "var(--class-cash)", onColor: ON_CHART, hatch: true },
-      { key: "free", name: "キャッシュ（待機資金）", value: cashTotal - reserved, color: "var(--class-cash)", onColor: ON_CHART },
+      ...byCurrency(scoped.filter(isCash)).map((c) => ({
+        key: c.name, name: c.name, value: c.value, color: c.color, onColor: c.onColor,
+      })),
       { key: "other", name: "キャッシュ以外", value: investTotal, color: "var(--cat-other)", onColor: ON_CHART },
     ];
 
     const classSegments: Segment[] = byCategory(scoped)
       .filter((c) => c.value > 0)
-      .sort((a, b) => b.value - a.value)
+      .sort((a, b) => Number(a.name === "現金") - Number(b.name === "現金") || b.value - a.value)
       .map((c) => ({ key: c.name, name: c.name, value: c.value, color: c.color, onColor: c.onColor }));
 
     const currencies = byCurrency(scoped);
@@ -81,20 +78,17 @@ export const Dashboard = () => {
     const currencySegments: Segment[] = currencies.map((c) => ({ key: c.name, name: c.name, value: c.value, color: c.color, onColor: c.onColor }));
 
     const holdingKey = (h: Holding) => `${h.name}-${h.category}-${h.currency}`;
-    // 横棒は上位 5 件だけ区画にし、残りは「残りN銘柄」の 1 区画にまとめる。全銘柄は下の一覧で見る
-    const rest = invest.slice(HOLDING_COLOR_COUNT);
-    const holdingSegments: Segment[] = [
-      ...invest.slice(0, HOLDING_COLOR_COUNT).map((h) => ({ key: holdingKey(h), name: h.name, value: h.value, color: h.color, onColor: h.onColor })),
-      ...(rest.length > 0 ? [{ key: "rest", name: `残り${rest.length}銘柄`, value: sum(rest), color: "var(--holding-rest)", onColor: ON_CHART }] : []),
-    ];
+    // 小さい銘柄も独立した区画にし、名前と割合は下の一覧で確認できるようにする
+    const holdingSegments: Segment[] = invest.map((h) => ({
+      key: holdingKey(h), name: h.name, value: h.value, color: h.color, onColor: h.onColor,
+    }));
     const cashSegment: Segment = { key: "cash", name: "キャッシュ", value: cashTotal, color: "var(--class-cash)", onColor: ON_CHART };
-    const top = (n: number) => formatPct(sum(invest.slice(0, n)), investTotal);
+    const top = (n: number) => formatPct(sum(invest.slice(0, n)), scopedTotal);
 
     return {
       net: sum(holdings) - user.liabilities,
       scopedTotal,
       cashTotal,
-      investTotal,
       cashSegments,
       classSegments,
       jpy,
@@ -112,10 +106,9 @@ export const Dashboard = () => {
           name: h.name,
           value: h.value,
           color: h.color,
-          investPct: formatPct(h.value, investTotal),
           totalPct: formatPct(h.value, scopedTotal),
         })),
-        { key: "cash", name: "キャッシュ", value: cashTotal, color: "var(--class-cash)", investPct: "—", totalPct: formatPct(cashTotal, scopedTotal) },
+        { key: "cash", name: "キャッシュ", value: cashTotal, color: "var(--class-cash)", totalPct: formatPct(cashTotal, scopedTotal) },
       ],
     };
   }, [holdings, user, base]);
@@ -137,11 +130,11 @@ export const Dashboard = () => {
           </Panel>
 
           <Panel title="キャッシュポジション" total={formatPct(view.cashTotal, view.scopedTotal)} className="aw-span-5">
-            <AllocationBar label="キャッシュポジション" segments={view.cashSegments} total={view.scopedTotal} showName={false} legend="all" />
+            <AllocationBar label="キャッシュポジション" segments={view.cashSegments} total={view.scopedTotal} legend="none" />
           </Panel>
 
           <Panel title="資産クラス" className="aw-span-7">
-            <AllocationBar label="資産クラス" segments={view.classSegments} total={view.scopedTotal} />
+            <AllocationBar label="資産クラス" segments={view.classSegments} total={view.scopedTotal} legend="none" />
           </Panel>
 
           <Panel title="通貨" totalLabel="JPY" total={formatPct(view.jpy, view.scopedTotal)} className="aw-span-5">
@@ -149,18 +142,9 @@ export const Dashboard = () => {
           </Panel>
 
           <Panel title="銘柄" className="aw-span-12">
-            <div className="aw-alloc-rows">
-              <span className="aw-alloc-rows__label">金融資産</span>
-              <div>
-                <AllocationBar label="金融資産の銘柄構成" segments={view.holdingSegments} total={view.investTotal} legend="none" />
-              </div>
-              <span className="aw-alloc-rows__label">キャッシュ込み</span>
-              <div>
-                <AllocationBar label="キャッシュ込みの銘柄構成" segments={[...view.holdingSegments, view.cashSegment]} total={view.scopedTotal} legend="none" />
-              </div>
-            </div>
-            <Stats items={view.stats} />
+            <AllocationBar label="銘柄構成" segments={[...view.holdingSegments, view.cashSegment]} total={view.scopedTotal} legend="none" />
             <HoldingList rows={view.rows} />
+            <Stats items={view.stats} />
           </Panel>
         </div>
       )}
