@@ -8,7 +8,7 @@
   --cat-1: #af574b; --cat-2: #3569a8; --cat-3: #647a30; --cat-4: #995077; --cat-5: #087f91;
   --cat-6: #8a6318; --cat-7: #7959ae; --cat-8: #147d64; --cat-other: #69777d;
   --fx-jpy: #926c16; --fx-usd: #3569a8; --fx-eur: #7959ae; --fx-other: #69777d;
-  /* 銘柄は上位 5 件だけ色を当て、6 件目以降は 1 区画にまとめて --holding-rest */
+  /* 銘柄は上位 5 件だけ色を当て、6 件目以降の各区画は --holding-rest */
   --holding-1: #3569a8; --holding-2: #8a6318; --holding-3: #7959ae; --holding-4: #087f91; --holding-5: #995077;
   --holding-rest: #69777d;
   --on-chart: #ffffff;
