@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { formatMan } from "../portfolio";
+import { formatMan, formatYen } from "../portfolio";
 
 export type HoldingRow = {
   key: string;
@@ -40,12 +40,12 @@ const HoldingListRow = ({ row: r, max }: { row: HoldingRow; max: number }) => {
         {r.name}
       </span>
       <span className="aw-bars__track">
-        <span className="aw-bars__bar" style={{ width: `${(r.value / max) * 100}%`, background: r.color }} />
+        <span className="aw-bars__bar" style={{ width: `${(Math.max(0, r.value) / max) * 100}%`, background: r.color }} />
       </span>
       <span className="aw-bars__pct">{r.totalPct}</span>
       <span className="aw-tip aw-holding__detail">
         <span className="aw-tip__name">{r.name}</span>
-        <span className="aw-tip__row">{formatMan(r.value)}円</span>
+        <span className="aw-tip__row">{r.value < 0 ? formatYen(r.value) : `${formatMan(r.value)}円`}</span>
       </span>
     </button>
   );

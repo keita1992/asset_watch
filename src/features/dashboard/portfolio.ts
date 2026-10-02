@@ -42,12 +42,12 @@ const isJpyCash = (a: { category: Category; currency: Currency }) =>
 
 /**
  * 保存されている円現金は「総資産 − 負債 − 円現金以外の資産」（src/plugins/dynamoDb.ts）。
- * 表示では負債を差し引かない「総資産 − 円現金以外の資産」を円現金として使う。保存値は変更しない。
+ * 表示も同じ式で負債控除後の円現金を使う。負債を二重に控除せず、不足額も保持する。
  */
 export const toHoldings = (assets: AssetsData, user: User): Holding[] => {
   const others = assets.filter((a) => !isJpyCash(a));
   const othersTotal = others.reduce((sum, a) => sum + a.value, 0);
-  const jpyCash = Math.max(0, user.netAssets - othersTotal);
+  const jpyCash = user.netAssets - user.liabilities - othersTotal;
   const holdings: Holding[] = others.map((a) => ({
     name: a.label,
     category: a.category,
@@ -66,11 +66,11 @@ export const toHoldings = (assets: AssetsData, user: User): Holding[] => {
   return holdings;
 };
 
-// 投資資産（総資産 − 生活防衛資金）を分母にするときは、生活防衛資金を円現金から除く
+// 投資資産（純資産 − 生活防衛資金）では、負債控除後の円現金から生活防衛資金を除く
 export const applyBase = (holdings: Holding[], base: Base, emergencyFund: number): Holding[] =>
   base === "total"
     ? holdings
-    : holdings.map((h) => (h.isJpyCash ? { ...h, value: Math.max(0, h.value - emergencyFund) } : h));
+    : holdings.map((h) => (h.isJpyCash ? { ...h, value: h.value - emergencyFund } : h));
 
 export const sum = (holdings: Holding[]) => holdings.reduce((s, h) => s + h.value, 0);
 
@@ -103,7 +103,7 @@ export const byCurrency = (holdings: Holding[]) =>
     color: CURRENCY_COLORS[name] ?? "var(--fx-other)",
     onColor: ON_CHART,
     value: sum(holdings.filter((h) => h.currency === name)),
-  })).filter((c) => c.value > 0);
+  })).filter((c) => c.value !== 0);
 
 export const cashSummary = (holdings: Holding[], emergencyFund: number) => {
   const jpy = sum(holdings.filter((h) => h.isJpyCash));
@@ -122,3 +122,16 @@ export const formatMan = (yen: number) => `${Math.round(yen / 10000).toLocaleStr
 export const formatYen = (yen: number) => `¥${Math.round(yen).toLocaleString("ja-JP")}`;
 export const formatPct = (part: number, whole: number) =>
   whole > 0 ? `${((part / whole) * 100).toFixed(1)}%` : "—";
+
+/** 負債・生活防衛資金を控除済みの、全構成比に共通する資産から集計する。 */
+export const cashPosition = (scoped: Holding[]) => {
+  const total = sum(scoped);
+  const cash = scoped.filter(isCash);
+  return {
+    total,
+    cash,
+    cashTotal: sum(cash),
+    nonCashTotal: sum(scoped.filter((h) => !isCash(h))),
+    canShowAllocation: total > 0 && scoped.every((h) => h.value >= 0),
+  };
+};

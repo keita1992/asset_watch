@@ -138,3 +138,8 @@ button.aw-nav__item { border: 0; background: transparent; font-family: inherit; 
 /* 資産・負債も共通のラベルと詳細表示を使う */
 .aw-wf__bar > .aw-alloc { width: 100%; }
 .aw-wf__bar .aw-tip { left: auto !important; right: 0; transform: none; }
+
+/* キャッシュの分母ラベルを狭い画面でも見出しと分けて読めるようにする。 */
+.aw-cash-position .aw-panel__head { flex-wrap: wrap; }
+.aw-cash-position .aw-panel__title { white-space: nowrap; }
+.aw-cash-position .aw-panel__total { margin-left: auto; }
