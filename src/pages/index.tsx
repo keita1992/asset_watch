@@ -10,6 +10,7 @@ import {
   Base,
   byCategory,
   byCurrency,
+  cashPosition,
   formatPct,
   formatYen,
   Holding,
@@ -26,7 +27,7 @@ import { User } from "@/store/user/type";
 import { USER_ID } from "@/utils/constants";
 
 const BASE_OPTIONS: { value: Base; label: string }[] = [
-  { value: "total", label: "総資産" },
+  { value: "total", label: "純資産" },
   { value: "invest", label: "投資資産" },
 ];
 
@@ -59,17 +60,17 @@ export const Dashboard = () => {
     const scopedTotal = sum(scoped);
     const cashTotal = sum(scoped.filter(isCash));
     const invest = withHoldingColors(scoped.filter((h) => !isCash(h) && h.value > 0));
-    const investTotal = sum(invest);
 
+    const position = cashPosition(scoped);
     const cashSegments: Segment[] = [
-      ...byCurrency(scoped.filter(isCash)).map((c) => ({
+      ...byCurrency(position.cash).map((c) => ({
         key: c.name, name: c.name, value: c.value, color: c.color, onColor: c.onColor,
       })),
-      { key: "other", name: "キャッシュ以外", value: investTotal, color: "var(--cat-other)", onColor: ON_CHART },
+      { key: "other", name: "キャッシュ以外", value: position.nonCashTotal, color: "var(--cat-other)", onColor: ON_CHART },
     ];
 
     const classSegments: Segment[] = byCategory(scoped)
-      .filter((c) => c.value > 0)
+      .filter((c) => c.value !== 0)
       .sort((a, b) => Number(a.name === "現金") - Number(b.name === "現金") || b.value - a.value)
       .map((c) => ({ key: c.name, name: c.name, value: c.value, color: c.color, onColor: c.onColor }));
 
@@ -83,18 +84,22 @@ export const Dashboard = () => {
       key: holdingKey(h), name: h.name, value: h.value, color: h.color, onColor: h.onColor,
     }));
     const cashSegment: Segment = { key: "cash", name: "キャッシュ", value: cashTotal, color: "var(--class-cash)", onColor: ON_CHART };
+    const holdingCashSegments: Segment[] = position.canShowAllocation ? [cashSegment] : byCurrency(position.cash).map((c) => ({
+      key: c.name, name: c.name === "JPY" ? "円現金" : `${c.name}現金`, value: c.value, color: "var(--class-cash)", onColor: ON_CHART,
+    }));
     const top = (n: number) => formatPct(sum(invest.slice(0, n)), scopedTotal);
 
     return {
-      net: sum(holdings) - user.liabilities,
+      net: sum(holdings),
       scopedTotal,
       cashTotal,
       cashSegments,
+      position,
       classSegments,
       jpy,
       currencySegments,
       holdingSegments,
-      cashSegment,
+      holdingCashSegments,
       stats: [
         { label: "最大の銘柄", value: top(1) },
         { label: "上位3銘柄", value: top(3) },
@@ -108,7 +113,7 @@ export const Dashboard = () => {
           color: h.color,
           totalPct: formatPct(h.value, scopedTotal),
         })),
-        { key: "cash", name: "キャッシュ", value: cashTotal, color: "var(--class-cash)", totalPct: formatPct(cashTotal, scopedTotal) },
+        ...holdingCashSegments.map((s) => ({ ...s, totalPct: formatPct(s.value, scopedTotal) })),
       ],
     };
   }, [holdings, user, base]);
@@ -129,20 +134,27 @@ export const Dashboard = () => {
             <Waterfall holdings={holdings!} liabilities={user.liabilities} />
           </Panel>
 
-          <Panel title="キャッシュポジション" total={formatPct(view.cashTotal, view.scopedTotal)} className="aw-span-5">
-            <AllocationBar label="キャッシュポジション" segments={view.cashSegments} total={view.scopedTotal} legend="none" />
+          <Panel title="キャッシュポジション" totalLabel={base === "invest" ? "純資産 − 生活防衛資金" : "純資産"} total={formatPct(view.position.cashTotal, view.position.total)} className="aw-span-5 aw-cash-position">
+            {view.position.canShowAllocation ? (
+              <AllocationBar label="キャッシュポジション" segments={view.cashSegments} total={view.position.total} legend="none" />
+            ) : (
+              <div>
+                {view.position.cash.map((h) => <p key={h.currency}>{h.currency} {formatYen(h.value)}</p>)}
+                <p>キャッシュ以外 {formatYen(view.position.nonCashTotal)}</p>
+              </div>
+            )}
           </Panel>
 
           <Panel title="資産クラス" className="aw-span-7">
-            <AllocationBar label="資産クラス" segments={view.classSegments} total={view.scopedTotal} legend="none" />
+            <AllocationBar label="資産クラス" segments={view.classSegments} total={view.scopedTotal} canShowAllocation={view.position.canShowAllocation} legend="none" />
           </Panel>
 
           <Panel title="通貨" totalLabel="JPY" total={formatPct(view.jpy, view.scopedTotal)} className="aw-span-5">
-            <AllocationBar label="通貨" segments={view.currencySegments} total={view.scopedTotal} />
+            <AllocationBar label="通貨" segments={view.currencySegments} total={view.scopedTotal} canShowAllocation={view.position.canShowAllocation} />
           </Panel>
 
           <Panel title="銘柄" className="aw-span-12">
-            <AllocationBar label="銘柄構成" segments={[...view.holdingSegments, view.cashSegment]} total={view.scopedTotal} legend="none" />
+            <AllocationBar label="銘柄構成" segments={[...view.holdingSegments, ...view.holdingCashSegments]} total={view.scopedTotal} canShowAllocation={view.position.canShowAllocation} legend="none" />
             <HoldingList rows={view.rows} />
             <Stats items={view.stats} />
           </Panel>

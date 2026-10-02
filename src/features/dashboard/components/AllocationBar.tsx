@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
-import { formatMan, formatPct } from "../portfolio";
+import { formatMan, formatPct, formatYen } from "../portfolio";
 
 export type Segment = {
   key: string;
@@ -16,6 +16,8 @@ type Props = {
   segments: Segment[];
   // 構成比の分母
   total: number;
+  // 集約前の円現金が負の場合など、全パネルで金額表示に揃える。
+  canShowAllocation?: boolean;
   // false のときは区画に名前を書かず、構成比だけにする
   showName?: boolean;
   // small: 区画に名前を書けなかった項目だけ凡例に出す / all: すべて出す / none: 出さない
@@ -28,7 +30,7 @@ const LEGEND_THRESHOLD = 0.07;
 type Active = { key: string; x: number };
 
 // 合計が 100% になる内訳を 1 本の横棒で示す。区画はホバー・タップ・フォーカスで名前・金額・構成比を出す
-export const AllocationBar = ({ label, segments, total, showName = true, legend = "small" }: Props) => {
+export const AllocationBar = ({ label, segments, total, canShowAllocation = true, showName = true, legend = "small" }: Props) => {
   const rows = segments.filter((s) => s.value > 0);
   const legendRows =
     legend === "all" ? rows : legend === "small" ? rows.filter((s) => s.value / total <= LEGEND_THRESHOLD) : [];
@@ -54,6 +56,17 @@ export const AllocationBar = ({ label, segments, total, showName = true, legend 
     const center = el.offsetLeft + el.offsetWidth / 2;
     setActive({ key, x: Math.min(Math.max(center, half), Math.max(bar.clientWidth - half, half)) });
   };
+
+  // 負の残高や非正の分母は100%積み上げ棒で表せないため、符号付き金額で示す。
+  if (!canShowAllocation || total <= 0 || segments.some((s) => s.value < 0)) {
+    return (
+      <div role="group" aria-label={label}>
+        {segments.filter((s) => s.value !== 0).map((s) => (
+          <p key={s.key}>{s.name} {formatYen(s.value)}・{formatPct(s.value, total)}</p>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <>

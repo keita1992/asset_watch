@@ -9,11 +9,13 @@ type Props = {
 
 // 総資産 − 負債 ＝ 純資産 を 1 本の横軸で示す。総資産は資産クラスで積み上げる
 export const Waterfall = ({ holdings, liabilities }: Props) => {
-  const total = sum(holdings);
-  const net = total - liabilities;
+  const net = sum(holdings);
+  const total = net + liabilities;
   const scale = Math.max(total, liabilities, 1);
   const pct = (x: number) => `${(Math.max(0, x) / scale) * 100}%`;
-  const categories = byCategory(holdings).filter((c) => c.value > 0);
+  // 円現金は負債控除済みなので、総資産の説明に限って負債分を戻す。
+  const grossHoldings = holdings.map((h) => h.isJpyCash ? { ...h, value: h.value + liabilities } : h);
+  const categories = byCategory(grossHoldings).filter((c) => c.value !== 0);
 
   return (
     <div className="aw-wf" role="group" aria-label="総資産から負債を引いて純資産">
