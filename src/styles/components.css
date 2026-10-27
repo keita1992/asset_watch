@@ -103,6 +103,9 @@ body { background: var(--canvas); color: var(--ink); font-family: var(--font-san
 .aw-nav__item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 button.aw-nav__item { border: 0; background: transparent; font-family: inherit; cursor: pointer; text-align: left; }
 .aw-nav__spacer { flex: 1; }
+.aw-last-updated { color: var(--ink-3); font-size: 11px; line-height: 1.5; }
+.aw-last-updated--nav { display: flex; flex-direction: column; padding: 8px 12px 0; }
+.aw-last-updated--main { display: none; }
 .aw-main { flex: 1; min-width: 0; padding: var(--space-6); }
 @media (min-width: 900px) {
   .aw-nav { position: sticky; top: 0; height: 100dvh; box-sizing: border-box; align-self: flex-start; overflow-y: auto; }
@@ -111,6 +114,8 @@ button.aw-nav__item { border: 0; background: transparent; font-family: inherit; 
   .aw-shell { flex-direction: column; }
   .aw-nav { width: auto; flex-direction: row; align-items: center; padding: 12px var(--space-4); border-right: 0; border-bottom: 1px solid var(--line); }
   .aw-nav__brand { padding: 0 12px 0 0; }
+  .aw-last-updated--nav { display: none; }
+  .aw-last-updated--main { display: flex; gap: 8px; margin-bottom: var(--space-2); }
   .aw-main { padding: var(--space-5); }
 }
 @media (max-width: 599px) {

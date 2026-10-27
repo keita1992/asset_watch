@@ -8,11 +8,16 @@ import {
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Snackbar } from '../elements/Snackbar';
 
+import { axios } from '@/libs/axios';
 import { ColorMode, useColorMode } from '@/libs/colorMode';
+import { useAppSelector } from '@/store';
+import { selectAssets } from '@/store/asset';
+import { selectUser } from '@/store/user';
+import { formatLastUpdated, latestUpdatedAt } from '@/utils/lastUpdated';
 
 const menus = [
   { href: '/', label: 'ダッシュボード', icon: <DashboardOutlined /> },
@@ -31,11 +36,34 @@ type Props = {
   children: React.ReactNode,
 }
 
+const LastUpdated = ({ value, className }: { value: string | null; className: string }) => (
+  <div className={`aw-last-updated ${className}`}>
+    <span>最終更新日時</span>
+    {value ? <time dateTime={value}>{formatLastUpdated(value)}</time> : <span>—</span>}
+  </div>
+);
+
 // メニューは幅 900px 以上で左、600〜899px で上、600px 未満で画面下のタブ（src/styles/components.css の .aw-nav）
 export const Layout = ({ children }: Props) => {
   const router = useRouter();
   const { mode, setMode } = useColorMode();
   const colorMode = COLOR_MODES[mode];
+  const assets = useAppSelector(selectAssets);
+  const user = useAppSelector(selectUser);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    setLastUpdatedAt(null);
+    axios.get<{ lastUpdatedAt: string | null }>('/api/assets/last-updated')
+      .then(({ data }) => {
+        if (active) setLastUpdatedAt(latestUpdatedAt([data.lastUpdatedAt]));
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    return () => { active = false; };
+  }, [assets, user, router.pathname]);
 
   return (
     <div className="aw-shell">
@@ -62,8 +90,12 @@ export const Layout = ({ children }: Props) => {
           {colorMode.icon}
           <span>{colorMode.label}</span>
         </button>
+        <LastUpdated value={lastUpdatedAt} className="aw-last-updated--nav" />
       </nav>
-      <main className="aw-main">{children}</main>
+      <main className="aw-main">
+        <LastUpdated value={lastUpdatedAt} className="aw-last-updated--main" />
+        {children}
+      </main>
       <Snackbar />
     </div>
   );
