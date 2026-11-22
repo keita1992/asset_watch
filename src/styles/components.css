@@ -139,7 +139,7 @@ button.aw-nav__item { border: 0; background: transparent; font-family: inherit; 
 .aw-wf__bar > .aw-alloc { width: 100%; }
 .aw-wf__bar .aw-tip { left: auto !important; right: 0; transform: none; }
 
-/* キャッシュの分母ラベルを狭い画面でも見出しと分けて読めるようにする。 */
-.aw-cash-position .aw-panel__head { flex-wrap: wrap; }
-.aw-cash-position .aw-panel__title { white-space: nowrap; }
-.aw-cash-position .aw-panel__total { margin-left: auto; }
+/* 長い金額や分母ラベルは狭い画面で次の行に送る。 */
+:is(.aw-cash-position, .aw-currency) .aw-panel__head { flex-wrap: wrap; }
+:is(.aw-cash-position, .aw-currency) .aw-panel__title { white-space: nowrap; }
+:is(.aw-cash-position, .aw-currency) .aw-panel__total { margin-left: auto; }

@@ -51,6 +51,20 @@ test('dashboard passes the net denominator to every allocation, holding and conc
     const { Dashboard } = load(path.resolve('src/pages/index.tsx'), mocks);
     const nodes = descendants(Dashboard());
     const expectedTotal = base === 'total' ? 2700000 : 2500000;
+    const balance = nodes.find(n => n.props.title === '資産・負債');
+    const netLabel = base === 'total' ? '純資産' : '投資資産';
+    assert.equal(balance.props.totalLabel, netLabel);
+    assert.equal(balance.props.total, base === 'total' ? '¥2,700,000' : '¥2,500,000');
+    const waterfall = balance.props.children;
+    const bars = descendants(waterfall.type(waterfall.props));
+    const gross = bars.find(n => n.props.label === (base === 'total' ? '総資産の内訳' : '対象資産の内訳'));
+    assert.equal(gross.props.total, expectedTotal + user.liabilities);
+    assert.equal(gross.props.segments.find(s => s.name === '現金').value, base === 'total' ? 1000000 : 800000);
+    assert.equal(bars.find(n => n.props.label === '負債の詳細').props.segments[0].value, user.liabilities);
+    assert.equal(bars.find(n => n.props.label === netLabel + 'の詳細').props.segments[0].value, expectedTotal);
+    const currency = nodes.find(n => n.props.title === '通貨');
+    assert.equal(currency.props.total, base === 'total' ? '¥1,700,000（63.0%）' : '¥1,500,000（60.0%）');
+    assert.equal(currency.props.children.props.segments.find(s => s.name === 'USD').value, 1000000);
     const allocations = nodes.filter(n => n.type.name === 'AllocationBar');
     assert.equal(allocations.length, 4);
     for (const n of allocations) assert.equal(n.props.total, expectedTotal);
@@ -62,15 +76,14 @@ test('dashboard passes the net denominator to every allocation, holding and conc
   }
 });
 
-test('balance sheet shows gross assets and net assets without subtracting debt twice', () => {
+test('balance sheet shows the signed investment balance if the reserve exceeds net assets', () => {
   const { Waterfall } = load(path.resolve('src/features/dashboard/components/Waterfall.tsx'));
-  const nodes = descendants(Waterfall({ holdings, liabilities: user.liabilities }));
+  const scoped = portfolio.applyBase(holdings, 'invest', 2800000);
+  const nodes = descendants(Waterfall({ holdings: scoped, liabilities: user.liabilities, grossLabel: '対象資産', netLabel: '投資資産' }));
   const values = nodes.filter(n => n.props.className === 'aw-wf__val').map(n => n.props.children);
-  assert.equal(values[0], '300万');
-  assert.equal(values[2], '270万');
-  const gross = nodes.find(n => n.props.label === '総資産の内訳');
-  assert.equal(gross.props.total, 3000000);
-  assert.equal(gross.props.segments.find(s => s.name === '現金').value, 1000000);
+  assert.equal(values[0], '20万');
+  assert.equal(values[2], '-10万');
+  assert.equal(nodes.some(n => n.type.name === 'AllocationBar'), false);
 });
 
 test('negative allocation displays signed values and omits the 100 percent stacked bar', () => {
