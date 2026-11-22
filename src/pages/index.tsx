@@ -36,6 +36,7 @@ export const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState(false);
   const [base, setBase] = useState<Base>("invest");
+  const netLabel = base === "invest" ? "投資資産" : "純資産";
 
   useEffect(() => {
     const fetchData = async () => {
@@ -90,7 +91,7 @@ export const Dashboard = () => {
     const top = (n: number) => formatPct(sum(invest.slice(0, n)), scopedTotal);
 
     return {
-      net: sum(holdings),
+      scoped,
       scopedTotal,
       cashTotal,
       cashSegments,
@@ -122,7 +123,7 @@ export const Dashboard = () => {
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
         <h1 style={{ margin: 0, fontSize: 18, lineHeight: "26px", fontWeight: 600 }}>ダッシュボード</h1>
-        <SegmentedControl label="構成比の分母" options={BASE_OPTIONS} value={base} onChange={setBase} />
+        <SegmentedControl label="表示する資産" options={BASE_OPTIONS} value={base} onChange={setBase} />
       </div>
 
       {error && <p className="aw-empty">データを読み込めませんでした。</p>}
@@ -130,8 +131,8 @@ export const Dashboard = () => {
 
       {view && user && (
         <div className="aw-grid">
-          <Panel title="資産・負債" totalLabel="純資産" total={formatYen(view.net)} className="aw-span-7">
-            <Waterfall holdings={holdings!} liabilities={user.liabilities} />
+          <Panel title="資産・負債" totalLabel={netLabel} total={formatYen(view.scopedTotal)} className="aw-span-7">
+            <Waterfall holdings={view.scoped} liabilities={user.liabilities} grossLabel={base === "invest" ? "対象資産" : "総資産"} netLabel={netLabel} />
           </Panel>
 
           <Panel title="キャッシュポジション" totalLabel={base === "invest" ? "純資産 − 生活防衛資金" : "純資産"} total={formatPct(view.position.cashTotal, view.position.total)} className="aw-span-5 aw-cash-position">
@@ -149,7 +150,7 @@ export const Dashboard = () => {
             <AllocationBar label="資産クラス" segments={view.classSegments} total={view.scopedTotal} canShowAllocation={view.position.canShowAllocation} legend="none" />
           </Panel>
 
-          <Panel title="通貨" totalLabel="JPY" total={formatPct(view.jpy, view.scopedTotal)} className="aw-span-5">
+          <Panel title="通貨" totalLabel="JPY" total={`${formatYen(view.jpy)}（${formatPct(view.jpy, view.scopedTotal)}）`} className="aw-span-5 aw-currency">
             <AllocationBar label="通貨" segments={view.currencySegments} total={view.scopedTotal} canShowAllocation={view.position.canShowAllocation} />
           </Panel>
 
